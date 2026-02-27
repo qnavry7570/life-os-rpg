@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Settings } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLifeOSStore } from '../../store/lifeOsStore'
+import { NotificationService } from '../../services/NotificationService'
 
 const heroConfig: Record<string, { img: string; glow: string; color: string }> = {
   explorer: { img: 'assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
@@ -13,6 +14,13 @@ export function HeroPanel() {
   const { profile, updateProfile } = useLifeOSStore()
   const [showBanner, setShowBanner] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      setNotificationsEnabled(true)
+    }
+  }, [])
 
   // Auto-set heroClass to 'explorer' if null (first launch check)
   useEffect(() => {
@@ -125,7 +133,7 @@ export function HeroPanel() {
         </div>
 
         {/* XP Progress Bar */}
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <div className="flex justify-between text-xs text-gray-400 font-medium px-1">
             <span>XP do Następnego Poziomu</span>
             <span style={{ color: config.color }}>
@@ -142,6 +150,22 @@ export function HeroPanel() {
             />
           </div>
         </div>
+
+        {/* Notifications Toggle */}
+        <button
+          onClick={async () => {
+            const granted = await NotificationService.requestPermission()
+            if (granted) {
+              await NotificationService.scheduleMorningReminder()
+              await NotificationService.scheduleEveningReminder()
+              setNotificationsEnabled(true)
+            }
+          }}
+          className="w-full mt-3 py-2 px-4 rounded-lg bg-amber-500/20 border border-amber-500/30
+                     text-amber-300 text-sm font-medium hover:bg-amber-500/30 transition-all"
+        >
+          {notificationsEnabled ? '🔔 Powiadomienia Aktywne' : '🔔 Włącz Powiadomienia'}
+        </button>
       </div>
 
       {/* Class Selection Modal */}

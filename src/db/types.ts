@@ -9,13 +9,36 @@ export type TimerPhase = 'counting_down' | 'warning' | 'expired' | 'completed' |
 export type QuestType = 'daily' | 'weekly' | 'monthly' | 'challenge' | 'location' | 'seasonal'
 export type QuestCategory = 'movement' | 'knowledge' | 'focus' | 'nutrition' | 'exploration' | 'social'
 export type Difficulty = 'trivial' | 'easy' | 'medium' | 'hard' | 'legendary'
-export type MetricType = 'steps' | 'pages' | 'water_glasses' | 'focus_minutes' | 'sleep_hours' | 
+export type MetricType = 'steps' | 'pages' | 'water_glasses' | 'focus_minutes' | 'sleep_hours' |
   'calories_deficit' | 'outdoor_minutes' | 'exercise_minutes' | 'learning_minutes' | 'meditation_minutes'
 export type QuestPeriod = 'daily' | 'weekly' | 'monthly'
 export type QuestStatus = 'active' | 'completed' | 'failed' | 'abandoned'
-export type XpSource = 'quest_daily' | 'quest_weekly' | 'quest_location' | 'timer_window' | 
+export type XpSource = 'quest_daily' | 'quest_weekly' | 'quest_location' | 'timer_window' |
   'streak_bonus' | 'streak_milestone' | 'level_up_bonus' | 'seasonal' | 'manual' | 'penalty'
-export type HabitType = 
+
+export interface DailyQuestItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  targetValue: number;
+  currentValue: number;
+  unit: string;
+  xpReward: number;
+  status: 'active' | 'completed' | 'locked';
+  category: 'fitness' | 'mind' | 'health';
+}
+
+export interface DailyQuestRecord {
+  id?: number;
+  date: string; // format YYYY-MM-DD
+  quests: DailyQuestItem[];
+  completedCount: number;
+  totalXpEarned: number;
+  completedAt?: string;
+}
+
+export type HabitType =
   // Movement
   'steps_update' | 'exercise_session' | 'outdoor_start' | 'outdoor_end' |
   // Nutrition
@@ -37,34 +60,34 @@ export type HabitType =
 
 export interface Profile {
   id: 1
-  
+
   // Identity
   heroName: string
   heroClass: HeroClass
   avatarEmoji: string
   createdAt: Date
-  
+
   // Level & XP
   level: number
   xpTotal: number
   xpCurrentLevel: number
   xpToNextLevel: number
-  
+
   // Attributes (0-100, recalculated daily at 00:00)
   vitality: number
   energy: number
   wisdom: number
   focus: number
   condition: number
-  
+
   // Tokens (quick access)
   focusTokens: number
-  
+
   // Master Streak
   masterStreak: number
   longestMasterStreak: number
   lastActiveDate: string // 'YYYY-MM-DD'
-  
+
   // Configuration
   dailyCalorieBurnRate: number
   stepGoal: number
@@ -79,7 +102,7 @@ export interface CalorieEntry {
   type: CalorieEventType
   value: number // kcal (positive = consumption, negative = burn)
   balanceAfter: number
-  
+
   mealName?: string
   source: DataSource
   geminiConfidence?: number
@@ -89,33 +112,33 @@ export interface CalorieEntry {
 
 export interface DailyStats {
   date: string // 'YYYY-MM-DD' - PRIMARY KEY
-  
+
   // Movement
   steps: number
   stepsSource: DataSource
   activeMinutes: number
   exerciseMinutes: number
   outdoorMinutes: number
-  
+
   // Sleep
   sleepHours: number
   sleepQuality: number // 1-5
   bedtimeTimestamp?: Date
   wakeTimeTimestamp?: Date
-  
+
   // Nutrition
   caloriesConsumed: number
   caloriesBurned: number
   calorieBalance: number
   waterGlasses: number
   mealsCount: number
-  
+
   // Knowledge
   readingPages: number
   readingMinutes: number
   learningMinutes: number
   podcastMinutes: number
-  
+
   // Focus
   focusMinutes: number
   focusSessionsCount: number
@@ -123,19 +146,19 @@ export interface DailyStats {
   socialMediaMinutes: number
   focusTokensEarned: number
   meditationMinutes: number
-  
+
   // Mood
   morningMood: number // 1-5
   eveningMood: number // 1-5
   energyLevel: number // 1-10
-  
+
   // Gamification
   xpEarned: number
   questsCompleted: number
   timerWindowsHit: number
   timerWindowsMissed: number
   streakActive: boolean
-  
+
   // Meta
   isComplete: boolean
   notes?: string
@@ -144,40 +167,40 @@ export interface DailyStats {
 
 export interface TimerWindow {
   id: TimerWindowId
-  
+
   // Definition
   label: string
   emoji: string
   durationMinutes: number
   category: TimerCategory
-  
+
   // Current State
   phase: TimerPhase
   lastResetAt: Date
   nextDeadlineAt: Date
   secondsRemaining: number
-  
+
   // Today's Stats
   completionsToday: number
   missesToday: number
-  
+
   // Streak
   streakDays: number
   longestStreak: number
-  
+
   // Rewards & Penalties
   xpOnHit: number
   xpOnMiss: number
   tokenReward?: string
   debuffOnMiss?: string
-  
+
   // Configuration
   isEnabled: boolean
   activeHoursStart: number
   activeHoursEnd: number
   weekdaysOnly: boolean
   autoResetOnSleep: boolean
-  
+
   updatedAt: Date
 }
 
@@ -188,29 +211,29 @@ export interface AttributeBonus {
 
 export interface Quest {
   id?: number
-  
+
   // Classification
   type: QuestType
   category: QuestCategory
   difficulty: Difficulty
-  
+
   // Content
   title: string
   description: string
   emoji: string
   flavorText?: string
-  
+
   // Target
   targetMetric: MetricType
   targetValue: number
   targetUnit: string
-  
+
   // Rewards
   xpReward: number
   focusTokenReward: number
   attributeBonus: AttributeBonus[]
   specialReward?: string
-  
+
   // Location (location quests only)
   isLocationBased: boolean
   locationName?: string
@@ -219,13 +242,13 @@ export interface Quest {
   locationRadiusMeters?: number
   photoRequired?: boolean
   photoVerificationPrompt?: string
-  
+
   // Availability
   isRepeatable: boolean
   cooldownDays: number
   seasonalCampaignId?: string
   prerequisiteLevel?: number
-  
+
   // Meta
   isActive: boolean
   timesCompleted: number
@@ -235,33 +258,33 @@ export interface Quest {
 export interface ActiveQuest {
   id?: number
   questId: number
-  
+
   // When
   assignedDate: string // 'YYYY-MM-DD'
   period: QuestPeriod
   expiresAt: Date
-  
+
   // Status
   status: QuestStatus
   currentProgress: number
   targetValue: number
   progressPercent: number
-  
+
   // Completion
   completedAt?: Date
   xpAwarded?: number
-  
+
   // GPS/Photo Verification
   gpsVerified?: boolean
   gpsVerifiedAt?: Date
   gpsLat?: number
   gpsLng?: number
-  
+
   photoBlob?: Blob
   photoVerifiedAt?: Date
   geminiVerificationResult?: string
   geminiConfidence?: number
-  
+
   // Meta
   source: 'auto_daily' | 'seasonal' | 'manual' | 'location_nearby'
   notes?: string
@@ -270,17 +293,17 @@ export interface ActiveQuest {
 export interface XpEvent {
   id?: number
   timestamp: Date
-  
+
   // Source
   source: XpSource
   amount: number // can be negative (penalty)
   description: string
-  
+
   // State After
   xpTotalAfter: number
   levelBefore: number
   levelAfter: number
-  
+
   // Links
   linkedQuestId?: number
   linkedTimerId?: string
@@ -289,12 +312,12 @@ export interface XpEvent {
 
 export interface TokenBalance {
   tokenType: string // PRIMARY KEY
-  
+
   // State
   currentBalance: number
   totalEarned: number
   totalSpent: number
-  
+
   // Meta
   emoji: string
   label: string
@@ -315,7 +338,7 @@ export interface Waypoint {
 
 export interface Expedition {
   id?: number
-  
+
   // Route
   name: string
   slug: string
@@ -323,17 +346,17 @@ export interface Expedition {
   description: string
   coverEmoji: string
   difficulty: Difficulty
-  
+
   // Progress
   currentPositionKm: number
   progressPercent: number
   isActive: boolean
   startedAt?: Date
   estimatedEndAt?: Date
-  
+
   // Conversion
   stepsPerKm: number
-  
+
   // Waypoints
   waypoints: Waypoint[]
 }
@@ -341,12 +364,12 @@ export interface Expedition {
 export interface HabitLog {
   id?: number
   timestamp: Date
-  
+
   // What
   habitType: HabitType
   value: number
   unit: string
-  
+
   // Meta
   source: DataSource
   linkedQuestId?: number
@@ -360,47 +383,47 @@ export interface Streak {
   habitId: string // PRIMARY KEY
   label: string
   emoji: string
-  
+
   // State
   currentStreak: number
   longestStreak: number
   lastActiveDate: string // 'YYYY-MM-DD'
   lastBrokenDate?: string
-  
+
   // History
   totalDaysActive: number
   totalDaysMissed: number
   startDate: string
-  
+
   // Milestones
   milestonesDone: number[] // [7, 30, 100, ...]
 }
 
 export interface SeasonalCampaign {
   id: string // PRIMARY KEY: 'march_2026_awakening'
-  
+
   // Definition
   name: string
   theme: string
   startDate: string // 'YYYY-MM-DD'
   endDate: string
   coverEmoji: string
-  
+
   // Seasonal Currency
   currencyName: string
   currencyEmoji: string
   currencyBalance: number
   currencyTotal: number
-  
+
   // Quests
   mainQuestIds: number[]
   bonusQuestIds: number[]
-  
+
   // Progress
   completionPercent: number
   mainQuestsCompleted: number
   isActive: boolean
-  
+
   // Final Reward
   finalRewardDescription: string
   finalRewardUnlocked: boolean

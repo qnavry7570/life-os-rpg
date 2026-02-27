@@ -12,6 +12,7 @@ import type {
   HabitLog,
   Streak,
   SeasonalCampaign,
+  DailyQuestRecord,
 } from './types'
 
 export class LifeOSDatabase extends Dexie {
@@ -27,23 +28,30 @@ export class LifeOSDatabase extends Dexie {
   habitLog!: Table<HabitLog>
   streaks!: Table<Streak>
   seasonalCampaigns!: Table<SeasonalCampaign>
+  dailyQuests!: Table<DailyQuestRecord>
 
   constructor() {
     super('LifeOS_DB')
-    
+
     this.version(1).stores({
-      profile:           '&id',
-      calorieEntries:    '++id, timestamp, type, linkedHabitLogId',
-      dailyStats:        '&date, isComplete, xpEarned',
-      timerWindows:      '&id, phase, category',
-      quests:            '++id, type, category, difficulty, isActive, isLocationBased',
-      activeQuests:      '++id, questId, assignedDate, period, status, expiresAt',
-      xpEvents:          '++id, timestamp, source, linkedDate, levelAfter',
-      tokenBalance:      '&tokenType',
-      expeditions:       '++id, isActive, slug',
-      habitLog:          '++id, timestamp, habitType, source, syncedToDailyStats, linkedQuestId',
-      streaks:           '&habitId, lastActiveDate',
+      profile: '&id',
+      calorieEntries: '++id, timestamp, type, linkedHabitLogId',
+      dailyStats: '&date, isComplete, xpEarned',
+      timerWindows: '&id, phase, category',
+      quests: '++id, type, category, difficulty, isActive, isLocationBased',
+      activeQuests: '++id, questId, assignedDate, period, status, expiresAt',
+      xpEvents: '++id, timestamp, source, linkedDate, levelAfter',
+      tokenBalance: '&tokenType',
+      expeditions: '++id, isActive, slug',
+      habitLog: '++id, timestamp, habitType, source, syncedToDailyStats, linkedQuestId',
+      streaks: '&habitId, lastActiveDate',
       seasonalCampaigns: '&id, isActive, startDate',
+    })
+
+    this.version(2).stores({
+      dailyQuests: '++id, date, completedCount'
+    }).upgrade(() => {
+      // Optional: Data migration if needed
     })
   }
 }
@@ -76,12 +84,12 @@ export function isWithinActiveHours(
   const now = new Date()
   const hour = now.getHours()
   const day = now.getDay()
-  
+
   // Check weekday constraint
   if (weekdaysOnly && (day === 0 || day === 6)) {
     return false
   }
-  
+
   // Check hour constraint
   return hour >= hourStart && hour < hourEnd
 }
