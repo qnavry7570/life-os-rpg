@@ -10,8 +10,24 @@ export function HealthTab() {
 
     const healthQuests = activeQuests.filter(q => q.notes === 'health' || q.targetValue > 0) // Basic filter for now
 
+    const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true'
+
+    // Mock data for preview mode
+    const mockHealth = {
+        water: { current: 5, goal: 8 },
+        sleep: { hours: 7.5, quality: 85 },
+        weight: { current: 75, goal: 72 },
+        steps: 7500,
+        calorieBalance: 350
+    }
+
+    const displaySteps = isPreview ? mockHealth.steps : (todayStats?.steps || 0)
+    const displayWater = isPreview ? mockHealth.water.current : (todayStats?.waterGlasses || 0)
+    const displaySleep = isPreview ? mockHealth.sleep.hours : (todayStats?.sleepHours || '0.0')
+    const displayCalories = isPreview ? mockHealth.calorieBalance : currentCalorieBalance
+
     // Background skeleton
-    if (!isLoaded && !error) {
+    if (!isLoaded && !error && !isPreview) {
         return (
             <div className="min-h-screen animate-pulse bg-cosmic-bg/80 flex flex-col p-4 gap-4 pb-24">
                 <div className="h-32 bg-white/5 rounded-2xl w-full" />
@@ -31,12 +47,17 @@ export function HealthTab() {
             }}
             className="relative min-h-screen pb-24"
         >
-            {/* Background Image restricted to HealthTab */}
+            {/* Background Image restricted to HealthTab with CSS gradient fallback */}
             <div
                 className="fixed inset-0 bg-cover bg-center z-[-2]"
-                style={{ backgroundImage: "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')" }}
+                style={{
+                    backgroundImage: "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')",
+                    background: isLoaded ? "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')" : "linear-gradient(135deg, #0a1628 0%, #0d2818 50%, #1a0a28 100%)",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
             />
-            <div className="fixed inset-0 bg-[rgba(5,15,10,0.55)] z-[-1]" />
+            <div className="fixed inset-0 bg-[rgba(5,15,10,0.45)] z-[-1]" />
 
             <div className="p-4 space-y-4 safe-top">
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-600 mb-6 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
@@ -47,41 +68,41 @@ export function HealthTab() {
                 <div className="grid grid-cols-2 gap-4">
 
                     {/* Calorie Balance */}
-                    <div className="col-span-2 backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 glow-green flex flex-col items-center justify-center">
+                    <div className="col-span-2 backdrop-blur-sm bg-white/5 border border-white/10 text-white rounded-xl p-4 glow-green flex flex-col items-center justify-center">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Calorie Balance</span>
                         <span className="text-3xl font-black text-emerald-400 drop-shadow-[0_0_8px_#34d399]">
-                            {currentCalorieBalance > 0 ? `+${Math.floor(currentCalorieBalance)}` : Math.floor(currentCalorieBalance)}
+                            {displayCalories > 0 ? `+${Math.floor(displayCalories)}` : Math.floor(displayCalories)}
                         </span>
                         <span className="text-xs text-gray-500 mt-1">kcal available</span>
                     </div>
 
                     {/* Steps */}
-                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 glow-green flex flex-col">
+                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 text-white rounded-xl p-4 glow-green flex flex-col">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Steps Today</span>
                         <span className="text-2xl font-bold text-green-400 drop-shadow-[0_0_8px_#4ade80]">
-                            {todayStats?.steps.toLocaleString() || 0}
+                            {displaySteps.toLocaleString()}
                         </span>
                     </div>
 
                     {/* Water */}
-                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 glow-cyan flex flex-col">
+                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 text-white rounded-xl p-4 glow-cyan flex flex-col">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hydration</span>
                         <span className="text-2xl font-bold text-cyan-400 drop-shadow-[0_0_8px_#22d3ee]">
-                            {todayStats?.waterGlasses || 0} / 8
+                            {displayWater} / 8
                         </span>
                         <span className="text-[10px] text-gray-500 mt-1">glasses</span>
                     </div>
 
                     {/* Sleep */}
-                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 glow-blue flex flex-col">
+                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 text-white rounded-xl p-4 glow-blue flex flex-col">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sleep Status</span>
                         <span className="text-2xl font-bold text-blue-400 drop-shadow-[0_0_8px_#60a5fa]">
-                            {todayStats?.sleepHours || '0.0'}h
+                            {displaySleep}h
                         </span>
                     </div>
 
                     {/* Heart Rate Placeholder */}
-                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 glow-red flex flex-col">
+                    <div className="backdrop-blur-sm bg-white/5 border border-white/10 text-white rounded-xl p-4 glow-red flex flex-col">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Resting HR</span>
                         <span className="text-2xl font-bold text-red-500 drop-shadow-[0_0_8px_#ef4444] animate-pulse">
                             -- bpm

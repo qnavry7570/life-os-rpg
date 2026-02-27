@@ -53,6 +53,9 @@ export function HeroPanel() {
   const totalXP = isPreview ? 2750 : ((profile as any).xpTotal ?? 0);
   const { current, progressPercent, xpIntoLevel } = getLevelData(totalXP);
 
+  const fillPercent = current.xpToNext > 0 ? xpIntoLevel / current.xpToNext : 1;
+  const strokeDashoffset = CIRCUMFERENCE * (1 - fillPercent);
+
   const tierBadgeName = current.level <= 10 ? 'NOWICJUSZ' :
     current.level <= 20 ? 'ADEPT' :
       current.level <= 30 ? 'MISTRZ' :
@@ -118,9 +121,10 @@ export function HeroPanel() {
                 strokeWidth={6}
                 strokeLinecap="round"
                 strokeDasharray={CIRCUMFERENCE}
+                strokeDashoffset={strokeDashoffset}
                 initial={{ strokeDashoffset: CIRCUMFERENCE }}
-                animate={{ strokeDashoffset: Math.max(0, CIRCUMFERENCE - (progressPercent / 100) * CIRCUMFERENCE) }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
+                animate={{ strokeDashoffset: strokeDashoffset }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
               />
             </svg>
             {/* Avatar w środku */}
@@ -128,10 +132,18 @@ export function HeroPanel() {
               <div className="absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card z-0" />
               <img
                 src={`/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.webp`}
-                alt="Hero"
+                alt="Hero avatar"
                 className="absolute inset-0 w-full h-full object-cover object-top z-10"
                 loading="lazy" decoding="async"
-                onError={(e) => (e.currentTarget.style.opacity = '0')}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src.endsWith('.webp')) {
+                    target.src = `/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.png`;
+                  } else {
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-4xl z-10">⚔️</div>';
+                  }
+                }}
               />
             </div>
             {/* Level badge na dole ringa */}
@@ -159,9 +171,8 @@ export function HeroPanel() {
 
             {/* Linear XP bar */}
             <div className="mt-4 mb-2">
-              <div className="flex justify-between text-[10px] text-gray-500 font-medium mb-1.5 px-1">
-                <span>{Math.floor(xpIntoLevel)} XP</span>
-                <span>{current.xpToNext > 0 ? current.xpToNext + ' XP' : 'MAX'}</span>
+              <div className="flex justify-center text-[10px] text-gray-500 font-medium mb-1.5 px-1">
+                <span>{Math.floor(xpIntoLevel)} / {current.xpToNext > 0 ? current.xpToNext : 'MAX'} XP do Lv {current.level + 1}</span>
               </div>
               <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
                 <motion.div
