@@ -48,9 +48,18 @@ function App() {
   const MIN_SPLASH_DURATION = 800
   const MAX_SPLASH_DURATION = 2000
 
+  // Screenshot/bot bypass — jeśli URL zawiera ?preview=true,
+  // pomiń splash screen i pokaż UI natychmiast z mock danymi
+  const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === 'true'
+
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
+    if (isPreviewMode) {
+      setIsReady(true) // instant, bez DB
+      return
+    }
+
     const startTime = Date.now()
 
     // Safety fallback: Force UI to show after MAX_SPLASH_DURATION
