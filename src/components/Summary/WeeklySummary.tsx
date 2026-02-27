@@ -6,8 +6,8 @@ interface WeeklySummaryProps {
 }
 
 export function WeeklySummary({ onBack }: WeeklySummaryProps) {
-  const { profile, todayStats } = useLifeOSStore()
-  
+  const { profile } = useLifeOSStore()
+
   // Mock data for weekly stats (w przyszłości to będzie z DB)
   const weeklyStats = {
     totalXP: 450,
@@ -17,7 +17,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
     avgSleep: 7.2,
     streakDays: profile?.masterStreak || 0,
   }
-  
+
   return (
     <div className="min-h-screen bg-cosmic-bg pb-20">
       {/* Header */}
@@ -40,7 +40,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="p-4 space-y-4 max-w-md mx-auto">
         {/* XP Progress */}
@@ -50,14 +50,14 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             +{weeklyStats.totalXP}
           </div>
           <p className="text-sm text-gray-400">XP zdobyte w tym tygodniu</p>
-          
+
           {profile && (
             <div className="mt-4 text-xs text-gray-500">
               Aktualny poziom: <span className="text-cosmic-purple font-bold">{profile.level}</span>
             </div>
           )}
         </div>
-        
+
         {/* Achievements Grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="card p-4 text-center">
@@ -67,7 +67,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             </div>
             <p className="text-xs text-gray-500">kroków</p>
           </div>
-          
+
           <div className="card p-4 text-center">
             <div className="text-3xl mb-2">🍅</div>
             <div className="text-2xl font-bold text-red-400">
@@ -75,7 +75,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             </div>
             <p className="text-xs text-gray-500">pomodoro</p>
           </div>
-          
+
           <div className="card p-4 text-center">
             <div className="text-3xl mb-2">✅</div>
             <div className="text-2xl font-bold text-blue-400">
@@ -83,7 +83,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             </div>
             <p className="text-xs text-gray-500">questów</p>
           </div>
-          
+
           <div className="card p-4 text-center">
             <div className="text-3xl mb-2">💤</div>
             <div className="text-2xl font-bold text-purple-400">
@@ -92,7 +92,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             <p className="text-xs text-gray-500">śr. sen</p>
           </div>
         </div>
-        
+
         {/* Streak */}
         <div className="card p-6">
           <div className="flex items-center gap-4">
@@ -110,7 +110,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             </div>
           </div>
         </div>
-        
+
         {/* Badges */}
         <div className="card p-4">
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -124,14 +124,14 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
                 <p className="text-xs text-gray-400">Walker</p>
               </div>
             )}
-            
+
             {weeklyStats.totalPomodoros >= 15 && (
               <div className="bg-cosmic-card/50 rounded-lg p-3 text-center">
                 <div className="text-3xl mb-1">🎯</div>
                 <p className="text-xs text-gray-400">Focused</p>
               </div>
             )}
-            
+
             {weeklyStats.streakDays >= 7 && (
               <div className="bg-cosmic-card/50 rounded-lg p-3 text-center">
                 <div className="text-3xl mb-1">⭐</div>
@@ -140,7 +140,7 @@ export function WeeklySummary({ onBack }: WeeklySummaryProps) {
             )}
           </div>
         </div>
-        
+
         {/* Next Week Goals */}
         <div className="card p-4">
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">

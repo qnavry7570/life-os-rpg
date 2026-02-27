@@ -1,4 +1,4 @@
-import { db, xpForLevel, getTodayDateString } from './database'
+import { db, getTodayDateString } from './database'
 import type { TimerWindow, Quest, TokenBalance, Expedition, Waypoint } from './types'
 
 export async function seedDatabase() {
@@ -8,9 +8,9 @@ export async function seedDatabase() {
     console.log('✅ Database already initialized')
     return
   }
-  
+
   console.log('🌱 Seeding Life OS Database...')
-  
+
   // ========== PROFILE ==========
   await db.profile.add({
     id: 1,
@@ -37,7 +37,7 @@ export async function seedDatabase() {
     sleepGoal: 7.5,
     timezone: 'Europe/Warsaw',
   })
-  
+
   // ========== TIMER WINDOWS ==========
   const now = new Date()
   const timers: TimerWindow[] = [
@@ -116,7 +116,7 @@ export async function seedDatabase() {
     },
   ]
   await db.timerWindows.bulkAdd(timers)
-  
+
   // ========== TOKENS ==========
   const tokens: TokenBalance[] = [
     {
@@ -154,7 +154,7 @@ export async function seedDatabase() {
     },
   ]
   await db.tokenBalance.bulkAdd(tokens)
-  
+
   // ========== DAILY QUESTS LIBRARY ==========
   const quests: Omit<Quest, 'id'>[] = [
     {
@@ -284,11 +284,11 @@ export async function seedDatabase() {
       createdAt: now,
     },
   ]
-  
+
   for (const quest of quests) {
     await db.quests.add(quest as Quest)
   }
-  
+
   // ========== EXPEDITION - CAMINO DE SANTIAGO ==========
   const waypoints: Waypoint[] = [
     {
@@ -349,7 +349,7 @@ export async function seedDatabase() {
       isReached: false,
     },
   ]
-  
+
   const expedition: Omit<Expedition, 'id'> = {
     name: 'Camino de Santiago',
     slug: 'camino_de_santiago',
@@ -365,7 +365,7 @@ export async function seedDatabase() {
     waypoints,
   }
   await db.expeditions.add(expedition as Expedition)
-  
+
   // ========== INITIALIZE TODAY'S STATS ==========
   const today = getTodayDateString()
   await db.dailyStats.add({
@@ -403,7 +403,7 @@ export async function seedDatabase() {
     isComplete: false,
     updatedAt: now,
   })
-  
+
   // ========== GENERATE TODAY'S DAILY QUESTS ==========
   const dailyQuests = await db.quests
     .where('type')
@@ -411,7 +411,7 @@ export async function seedDatabase() {
     .and(q => q.isActive)
     .limit(5)
     .toArray()
-  
+
   for (const quest of dailyQuests) {
     if (quest.id) {
       await db.activeQuests.add({
@@ -427,7 +427,7 @@ export async function seedDatabase() {
       })
     }
   }
-  
+
   console.log('✅ Life OS Database seeded successfully!')
   console.log(`   - Profile: Odkrywca Level 1`)
   console.log(`   - Timers: 3 active windows`)

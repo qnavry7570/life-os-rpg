@@ -1,5 +1,5 @@
 import { useLifeOSStore } from '../../store/lifeOsStore'
-import { Play, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600)
@@ -10,18 +10,18 @@ function formatTime(seconds: number): string {
 
 export function TimerWindows() {
   const { timerWindows, timerStates, hitTimer } = useLifeOSStore()
-  
+
   return (
     <div className="card p-4 space-y-4">
       <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
         Okna Timerów
       </h2>
-      
+
       <div className="grid grid-cols-1 gap-3">
         {timerWindows.map(timer => {
           const state = timerStates[timer.id]
           if (!state) return null
-          
+
           const phaseColors = {
             counting_down: 'border-green-500 bg-green-500/10',
             warning: 'border-amber-500 bg-amber-500/10',
@@ -29,9 +29,9 @@ export function TimerWindows() {
             completed: 'border-cyan-500 bg-cyan-500/10',
             cooldown: 'border-purple-500 bg-purple-500/10',
           }
-          
+
           return (
-            <div 
+            <div
               key={timer.id}
               className={`p-4 rounded-xl border-2 ${phaseColors[state.phase]} transition-all`}
             >
@@ -53,7 +53,7 @@ export function TimerWindows() {
                   Wykonano
                 </button>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-2xl font-mono font-bold text-cosmic-cyan">
                   {formatTime(state.secondsRemaining)}
@@ -65,7 +65,7 @@ export function TimerWindows() {
                   <p className="text-xs text-red-400 mt-1">❌ Czas minął</p>
                 )}
               </div>
-              
+
               <div className="mt-2 text-xs text-center text-gray-500">
                 +{timer.xpOnHit} XP za trafienie
               </div>

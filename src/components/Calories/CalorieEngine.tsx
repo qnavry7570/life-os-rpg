@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useLifeOSStore } from '../../store/lifeOsStore'
 import { Plus, Flame } from 'lucide-react'
@@ -12,13 +12,13 @@ export function CalorieEngine() {
     logMeal,
     setBurnRate,
   } = useLifeOSStore()
-  
+
   const [showMealDialog, setShowMealDialog] = useState(false)
   const [mealKcal, setMealKcal] = useState('')
   const [mealName, setMealName] = useState('')
   const [showBurnRateDialog, setShowBurnRateDialog] = useState(false)
   const [newBurnRate, setNewBurnRate] = useState('')
-  
+
   // Prepare chart data - last 6 hours
   const chartData = calorieHistory
     .filter(entry => {
@@ -29,32 +29,32 @@ export function CalorieEngine() {
       time: entry.timestamp.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
       balance: Math.round(entry.balanceAfter),
     }))
-  
+
   const handleAddMeal = async () => {
     const kcal = parseInt(mealKcal)
     if (isNaN(kcal) || kcal <= 0) return
-    
+
     await logMeal(kcal, mealName || undefined)
     setMealKcal('')
     setMealName('')
     setShowMealDialog(false)
   }
-  
+
   const handleUpdateBurnRate = async () => {
     const rate = parseInt(newBurnRate)
     if (isNaN(rate) || rate <= 0) return
-    
+
     await setBurnRate(rate)
     setNewBurnRate('')
     setShowBurnRateDialog(false)
   }
-  
-  const balanceColor = currentCalorieBalance >= 0 
-    ? 'text-cosmic-cyan' 
+
+  const balanceColor = currentCalorieBalance >= 0
+    ? 'text-cosmic-cyan'
     : 'text-cosmic-amber'
-  
+
   const balanceSign = currentCalorieBalance >= 0 ? '+' : ''
-  
+
   return (
     <div className="card p-4 space-y-4">
       {/* Header */}
@@ -71,7 +71,7 @@ export function CalorieEngine() {
           Posiłek
         </button>
       </div>
-      
+
       {/* Meal Dialog */}
       {showMealDialog && (
         <div className="bg-cosmic-card/50 rounded-lg p-4 space-y-3 border border-cosmic-border">
@@ -97,7 +97,7 @@ export function CalorieEngine() {
           </button>
         </div>
       )}
-      
+
       {/* Current Balance */}
       <div className="text-center">
         <div className={`text-5xl font-bold ${balanceColor} text-glow-cyan`}>
@@ -105,7 +105,7 @@ export function CalorieEngine() {
         </div>
         <p className="text-sm text-gray-500">kcal bilans</p>
       </div>
-      
+
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="text-center">
@@ -121,9 +121,9 @@ export function CalorieEngine() {
           </p>
         </div>
       </div>
-      
+
       {/* Burn Rate */}
-      <div 
+      <div
         onClick={() => setShowBurnRateDialog(!showBurnRateDialog)}
         className="flex items-center justify-center gap-2 text-sm bg-cosmic-card/30 rounded-lg p-2 cursor-pointer hover:bg-cosmic-card/50 transition-all"
       >
@@ -134,7 +134,7 @@ export function CalorieEngine() {
         </span>
         <span className="text-xs text-gray-500">(kliknij aby zmienić)</span>
       </div>
-      
+
       {/* Burn Rate Dialog */}
       {showBurnRateDialog && (
         <div className="bg-cosmic-card/50 rounded-lg p-4 space-y-3 border border-cosmic-border">
@@ -154,32 +154,32 @@ export function CalorieEngine() {
           </button>
         </div>
       )}
-      
+
       {/* Chart */}
       {chartData.length > 0 && (
         <div className="h-32">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-              <XAxis 
-                dataKey="time" 
+              <XAxis
+                dataKey="time"
                 stroke="#4b5563"
                 style={{ fontSize: '10px' }}
               />
-              <YAxis 
+              <YAxis
                 stroke="#4b5563"
                 style={{ fontSize: '10px' }}
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#141428',
                   border: '1px solid #1f1f3d',
                   borderRadius: '8px',
                 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="balance" 
-                stroke="#06b6d4" 
+              <Line
+                type="monotone"
+                dataKey="balance"
+                stroke="#06b6d4"
                 strokeWidth={2}
                 dot={false}
               />

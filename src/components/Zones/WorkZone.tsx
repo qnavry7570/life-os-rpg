@@ -9,30 +9,30 @@ interface WorkZoneProps {
 
 export function WorkZone({ onBack }: WorkZoneProps) {
   const { awardXP, awardToken } = useLifeOSStore()
-  
+
   // Pomodoro State
   const [pomodoroMinutes, setPomodoroMinutes] = useState(25)
   const [pomodoroSeconds, setPomodoroSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [isBreak, setIsBreak] = useState(false)
   const [completedPomodoros, setCompletedPomodoros] = useState(0)
-  
+
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
-    
+    let interval: ReturnType<typeof setInterval> | null = null
+
     if (isRunning) {
       interval = setInterval(() => {
         if (pomodoroSeconds === 0) {
           if (pomodoroMinutes === 0) {
             // Pomodoro finished
             setIsRunning(false)
-            
+
             if (!isBreak) {
               // Work session complete
               setCompletedPomodoros(prev => prev + 1)
               awardXP('quest_daily', 50, 'Ukończono sesję Pomodoro!')
               awardToken('focus', 1)
-              
+
               // Start break
               setIsBreak(true)
               setPomodoroMinutes(5)
@@ -52,27 +52,27 @@ export function WorkZone({ onBack }: WorkZoneProps) {
         }
       }, 1000)
     }
-    
+
     return () => {
       if (interval) clearInterval(interval)
     }
   }, [isRunning, pomodoroMinutes, pomodoroSeconds, isBreak, awardXP, awardToken])
-  
+
   const handleStartPause = () => {
     setIsRunning(!isRunning)
   }
-  
+
   const handleReset = () => {
     setIsRunning(false)
     setIsBreak(false)
     setPomodoroMinutes(25)
     setPomodoroSeconds(0)
   }
-  
-  const timePercent = isBreak 
+
+  const timePercent = isBreak
     ? ((5 * 60 - (pomodoroMinutes * 60 + pomodoroSeconds)) / (5 * 60)) * 100
     : ((25 * 60 - (pomodoroMinutes * 60 + pomodoroSeconds)) / (25 * 60)) * 100
-  
+
   return (
     <div className="min-h-screen bg-cosmic-bg pb-20">
       {/* Header */}
@@ -95,7 +95,7 @@ export function WorkZone({ onBack }: WorkZoneProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="p-4 space-y-4 max-w-md mx-auto">
         {/* Pomodoro Timer */}
@@ -108,7 +108,7 @@ export function WorkZone({ onBack }: WorkZoneProps) {
               {completedPomodoros} sesji dziś
             </div>
           </div>
-          
+
           {/* Timer Display */}
           <div className="text-center space-y-2">
             <div className={`text-6xl font-mono font-bold ${isBreak ? 'text-green-400' : 'text-cosmic-cyan'} text-glow-cyan`}>
@@ -118,15 +118,15 @@ export function WorkZone({ onBack }: WorkZoneProps) {
               {isBreak ? '☕ Przerwa' : '💼 Praca'}
             </p>
           </div>
-          
+
           {/* Progress Ring */}
           <div className="progress-bar h-2">
-            <div 
+            <div
               className={`progress-fill ${isBreak ? 'bg-green-500' : 'bg-cosmic-cyan'} transition-all duration-1000`}
               style={{ width: `${timePercent}%` }}
             />
           </div>
-          
+
           {/* Controls */}
           <div className="flex gap-2">
             <button
@@ -143,13 +143,13 @@ export function WorkZone({ onBack }: WorkZoneProps) {
               <RotateCcw className="w-5 h-5" />
             </button>
           </div>
-          
+
           {/* Info */}
           <div className="text-xs text-center text-gray-500">
             Każda ukończona sesja = +50 XP + 🎯 Focus Token
           </div>
         </div>
-        
+
         {/* Daily Quests */}
         <DailyQuests />
       </div>
