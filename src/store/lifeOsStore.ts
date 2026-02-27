@@ -104,18 +104,32 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
       setInterval(() => {
         get().tickTimers()
         get().updateCalorieBalance()
+
+        // Midnight check
+        const { todayStats } = get()
+        if (todayStats) {
+          const currentDayStr = getTodayDateString()
+          if (todayStats.date !== currentDayStr) {
+            // Day rolled over
+            get().loadTodayStats() // This function creates the new day if missing and replaces todayStats
+          }
+        }
       }, 1000)
 
       // Snapshot calories every 10 minutes
       setInterval(() => {
         const { currentCalorieBalance } = get()
         const now = new Date()
-        db.calorieEntries.add({
+        const entry: CalorieEntry = {
           timestamp: now,
           type: 'snapshot',
           value: 0,
           balanceAfter: currentCalorieBalance,
           source: 'timer_auto',
+        }
+        db.calorieEntries.add(entry).then(() => {
+          // Keep history array in sync with the new snapshot
+          get().loadCalorieHistory()
         })
       }, 10 * 60 * 1000)
 
@@ -153,6 +167,17 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
 
     // Create if doesn't exist
     if (!stats) {
+      // If we are generating a new day at midnight, capture current ending balance
+      const { currentCalorieBalance, todayStats: prevStats } = get()
+
+      // Attempt to finalize yesterday's stats if they exist in memory
+      if (prevStats && prevStats.date !== today) {
+        // Finalize the previous day's balance and burn
+        const now = new Date();
+        const eodStats = { ...prevStats, isComplete: true, updatedAt: now }
+        await db.dailyStats.update(prevStats.date, eodStats)
+      }
+
       const now = new Date()
       stats = {
         date: today,
@@ -165,7 +190,7 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
         sleepQuality: 0,
         caloriesConsumed: 0,
         caloriesBurned: 0,
-        calorieBalance: 0,
+        calorieBalance: currentCalorieBalance, // Carry over balance
         waterGlasses: 0,
         mealsCount: 0,
         readingPages: 0,
@@ -190,6 +215,10 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
         updatedAt: now,
       }
       await db.dailyStats.add(stats)
+
+      // Auto debit daily burn rate on new day creation 
+      // (This assumes 24h burn is debited upfront or continuously. 
+      // Since continuous burn is implemented, we just start tracking from the carried over balance)
     }
 
     set({ todayStats: stats })
@@ -445,17 +474,17 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
 
     if (calorieHistory.length === 0) return
 
-    // Calculate burn since last snapshot
-    const lastSnapshot = calorieHistory
-      .filter(e => e.type === 'snapshot')
+    // Find the absolute latest entry (snapshot, meal, or config change)
+    const latestEntry = calorieHistory
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0]
 
-    if (!lastSnapshot) return
+    if (!latestEntry) return
 
-    const minutesSinceSnapshot = (Date.now() - lastSnapshot.timestamp.getTime()) / 60000
-    const burnedSinceSnapshot = (currentBurnRateKcalPerHour / 60) * minutesSinceSnapshot
+    // Calculate burn since that last exact entry
+    const minutesSinceEntry = (Date.now() - latestEntry.timestamp.getTime()) / 60000
+    const burnedSinceEntry = (currentBurnRateKcalPerHour / 60) * minutesSinceEntry
 
-    set({ currentCalorieBalance: lastSnapshot.balanceAfter - burnedSinceSnapshot })
+    set({ currentCalorieBalance: latestEntry.balanceAfter - burnedSinceEntry })
   },
 
   // ========== XP SYSTEM ==========

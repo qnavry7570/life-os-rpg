@@ -1,6 +1,5 @@
 import { Sword, Heart, Map, BarChart2, User } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useEffect } from 'react'
 
 export type TabId = 'dashboard' | 'health' | 'expedition' | 'stats' | 'hero'
 
@@ -18,11 +17,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
         { id: 'hero', icon: User, label: 'Hero', glow: 'glow-pulse' },
     ] as const
 
-    // Persist to local storage inside the component when active tab changes,
-    // but initial state is read in App.tsx.
-    useEffect(() => {
-        localStorage.setItem('lifeos_active_tab', activeTab)
-    }, [activeTab])
+    // State is now managed via URL hash in App.tsx
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-safe pt-2 bg-[rgba(5,8,20,0.85)] backdrop-blur-md border-t border-white/10">

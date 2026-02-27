@@ -12,13 +12,38 @@ import { HeroTab } from './components/Zones/HeroTab'
 function App() {
   const { initialize, isLoading } = useLifeOSStore()
 
-  // Persist tab via localStorage
+  // Get initial tab from hash or default to dashboard
   const getInitialTab = (): TabId => {
-    const saved = localStorage.getItem('lifeos_active_tab') as TabId
-    return saved || 'dashboard'
+    const hash = window.location.hash.replace('#', '')
+    const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero']
+    if (validTabs.includes(hash as TabId)) {
+      return hash as TabId
+    }
+    return 'dashboard'
   }
 
   const [currentTab, setCurrentTab] = useState<TabId>(getInitialTab)
+
+  // Listen for hash changes to update tab
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as TabId
+      const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero']
+      if (validTabs.includes(hash)) {
+        setCurrentTab(hash)
+      }
+    }
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  // Sync state changes to URL hash
+  useEffect(() => {
+    const actHash = currentTab === 'dashboard' ? '' : `#${currentTab}`
+    if (window.location.hash !== actHash && !(currentTab === 'dashboard' && window.location.hash === '')) {
+      window.history.pushState(null, '', actHash || window.location.pathname)
+    }
+  }, [currentTab])
 
   useEffect(() => {
     const init = async () => {
