@@ -30,7 +30,7 @@ export function ExpeditionTab() {
             {/* 2. Map Background with absolute pins */}
             <div className="relative w-full aspect-[9/16] max-h-[60vh] rounded-2xl overflow-hidden border border-white/20 shadow-glow-purple mx-auto bg-cosmic-bg/50">
                 <img
-                    src="/assets/map/map_world_bg.webp"
+                    src="assets/map/map_world_bg.webp"
                     alt="World Map"
                     className="w-full h-full object-cover"
                     loading="lazy"

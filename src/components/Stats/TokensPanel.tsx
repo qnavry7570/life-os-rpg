@@ -17,7 +17,7 @@ export function TokensPanel() {
             <div className="bg-white/5 rounded-xl border border-white/10 p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
-                  src="/assets/tokens/token_focus.webp"
+                  src="assets/tokens/token_focus.webp"
                   alt="Focus"
                   className="w-10 h-10 object-contain drop-shadow-[0_0_8px_#00d4ff]"
                   loading="lazy"
@@ -43,7 +43,7 @@ export function TokensPanel() {
                 <div className="flex items-center gap-3">
                   {isFocus ? (
                     <img
-                      src="/assets/tokens/token_focus.webp"
+                      src="assets/tokens/token_focus.webp"
                       alt="Focus"
                       className="w-10 h-10 object-contain drop-shadow-[0_0_8px_#00d4ff]"
                       loading="lazy"

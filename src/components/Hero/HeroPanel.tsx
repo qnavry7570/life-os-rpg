@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useLifeOSStore } from '../../store/lifeOsStore'
 
 const heroConfig: Record<string, { img: string; glow: string; color: string }> = {
-  explorer: { img: '/assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
-  scholar: { img: '/assets/hero/hero_scholar.webp', glow: 'glow-blue', color: '#60a5fa' },
-  warrior: { img: '/assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
+  explorer: { img: 'assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
+  scholar: { img: 'assets/hero/hero_scholar.webp', glow: 'glow-blue', color: '#60a5fa' },
+  warrior: { img: 'assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
 }
 
 export function HeroPanel() {

@@ -61,7 +61,7 @@ function App() {
       {/* Fixed Background */}
       <div
         className="fixed inset-0 bg-cover bg-center z-[-2]"
-        style={{ backgroundImage: "url('/assets/map/map_world_bg.webp')" }}
+        style={{ backgroundImage: "url('assets/map/map_world_bg.webp')" }}
       />
 
       {/* Dark Overlay */}

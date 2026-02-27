@@ -29,7 +29,7 @@ export function ExpeditionPreview() {
         >
             <div className="absolute inset-0 z-0">
                 <img
-                    src="/assets/expeditions/trail_camino.webp"
+                    src="assets/expeditions/trail_camino.webp"
                     alt="Trail Background"
                     className="w-full h-full object-cover"
                     loading="lazy"
