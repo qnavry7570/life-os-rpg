@@ -1,7 +1,7 @@
 import { ArrowLeft, Play, Pause, RotateCcw } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useLifeOSStore } from '../../store/lifeOsStore'
-import { DailyQuests } from '../Quests/DailyQuests'
+
 import { getXPForAction, XPAction, getLevelData } from '../../engines/LevelingEngine'
 import { useTriggerXP } from '../../hooks/useFloatingXP'
 import { useLevelUp } from '../../App'
@@ -123,7 +123,7 @@ export function WorkZone({ onBack }: WorkZoneProps) {
       {/* Content */}
       <div className="p-4 space-y-4 max-w-md mx-auto">
 
-        <DailyQuests />
+
 
         {/* Pomodoro Timer */}
         <div className="card p-6 space-y-4">
@@ -177,8 +177,7 @@ export function WorkZone({ onBack }: WorkZoneProps) {
           </div>
         </div>
 
-        {/* Daily Quests */}
-        <DailyQuests />
+
       </div>
     </div>
   )

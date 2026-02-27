@@ -14,7 +14,9 @@ import type {
   SeasonalCampaign,
   DailyQuestRecord,
   AchievementRecord,
+  ActiveExpedition,
 } from './types'
+import { HydrationState } from '../engines/HydrationEngine'
 
 export class LifeOSDatabase extends Dexie {
   profile!: Table<Profile>
@@ -23,6 +25,8 @@ export class LifeOSDatabase extends Dexie {
   timerWindows!: Table<TimerWindow>
   quests!: Table<Quest>
   activeQuests!: Table<ActiveQuest>
+  hydration!: Table<HydrationState>
+  activeExpeditions!: Table<ActiveExpedition>
   xpEvents!: Table<XpEvent>
   tokenBalance!: Table<TokenBalance>
   expeditions!: Table<Expedition>
@@ -63,6 +67,10 @@ export class LifeOSDatabase extends Dexie {
       if (profile && profile.xpTotal === undefined) {
         await trans.table('profile').update(profile.id, { xpTotal: 0, level: 1 });
       }
+    })
+    this.version(5).stores({
+      hydration: '&date',
+      activeExpeditions: '++id, trekId'
     })
   }
 }

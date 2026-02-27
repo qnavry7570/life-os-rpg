@@ -1,7 +1,7 @@
 import { Sword, Heart, Map, BarChart2, User } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-export type TabId = 'dashboard' | 'health' | 'expedition' | 'stats' | 'hero'
+export type TabId = 'dashboard' | 'health' | 'expedition' | 'stats' | 'hero' | 'expedition_details'
 
 interface BottomNavProps {
     activeTab: TabId

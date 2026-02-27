@@ -29,6 +29,8 @@ export interface DailyQuestItem {
   category: 'fitness' | 'mind' | 'health';
 }
 
+
+
 export interface DailyQuestRecord {
   id?: number;
   date: string; // format YYYY-MM-DD
@@ -359,6 +361,14 @@ export interface Expedition {
 
   // Waypoints
   waypoints: Waypoint[]
+}
+
+export interface ActiveExpedition {
+  id?: number;
+  trekId: string;
+  startedAt: Date;
+  completedKm: number;
+  stepLogs: { date: string; steps: number; km: number }[];
 }
 
 export interface HabitLog {

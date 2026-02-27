@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { AchievementsSection } from './AchievementsSection'
+import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 
 export function WeeklySummary() {
   const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
@@ -10,6 +11,16 @@ export function WeeklySummary() {
     calories: [1850, 2100, 1950, 2400, 1750, 2600, 2200],
     xp: [120, 180, 150, 220, 100, 280, 190],
   };
+
+  const MOCK_CALORIES_CHART = [
+    { day: "Pon", value: 1840 },
+    { day: "Wt", value: 2210 },
+    { day: "Śr", value: 1650 },
+    { day: "Czw", value: 2480 },
+    { day: "Pt", value: 1920 },
+    { day: "Sob", value: 2750 },
+    { day: "Nd", value: 2100 },
+  ];
 
   const dataToUse = isPreview ? MOCK_WEEKLY_DATA : MOCK_WEEKLY_DATA; // Fallback for now until db connects
 
@@ -68,15 +79,18 @@ export function WeeklySummary() {
 
       <div className="card bg-kosmic-card/80 backdrop-blur-sm border-white/10 p-4 space-y-2 glow-amber">
         <h3 className="font-bold text-sm text-gray-300">Spalone Kalorie</h3>
-        <div className="h-48 bg-black/30 rounded-xl border border-white/5 flex items-center justify-center flex-col gap-2">
-          <div className="flex w-full px-2 h-32 items-end justify-between gap-1">
-            {dataToUse.calories.map((val, i) => (
-              <div key={i} className="w-full bg-amber-500/80 rounded-t-md" style={{ height: `${(val / 3000) * 100}%` }} />
-            ))}
-          </div>
-          <div className="flex w-full px-2 justify-between text-[10px] text-gray-500">
-            {dataToUse.days.map((d) => <span key={d}>{d}</span>)}
-          </div>
+        <div className="h-48 pt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={MOCK_CALORIES_CHART}>
+              <XAxis dataKey="day" stroke="#9ca3af" fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip
+                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                contentStyle={{ backgroundColor: '#1e1b4b', borderColor: '#f59e0b', borderRadius: '8px', color: '#fff' }}
+                itemStyle={{ color: '#f59e0b' }}
+              />
+              <Bar dataKey="value" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

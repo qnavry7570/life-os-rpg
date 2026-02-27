@@ -8,6 +8,7 @@ import { HealthTab } from './components/Zones/HealthTab'
 import { ExpeditionTab } from './components/Zones/ExpeditionTab'
 import { WeeklySummary } from './components/Summary/WeeklySummary'
 import { HeroTab } from './components/Zones/HeroTab'
+import { MapTab } from './components/Zones/MapTab'
 import { useFloatingXP, FloatingXPContext } from './hooks/useFloatingXP'
 import { FloatingXP } from './components/FloatingXP'
 import { LevelUpModal } from './components/LevelUpModal'
@@ -29,7 +30,7 @@ function App() {
   // Get initial tab from hash or default to dashboard
   const getInitialTab = (): TabId => {
     const hash = window.location.hash.replace('#', '')
-    const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero']
+    const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero', 'expedition_details']
     if (validTabs.includes(hash as TabId)) {
       return hash as TabId
     }
@@ -42,7 +43,7 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as TabId
-      const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero']
+      const validTabs: TabId[] = ['dashboard', 'health', 'expedition', 'stats', 'hero', 'expedition_details']
       if (validTabs.includes(hash)) {
         setCurrentTab(hash)
       }
@@ -123,6 +124,8 @@ function App() {
       case 'health':
         return <HealthTab />
       case 'expedition':
+        return <MapTab />
+      case 'expedition_details':
         return <ExpeditionTab />
       case 'stats':
         return <WeeklySummary />
