@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-cosmic-border;
+  }
+  
+  body {
+    @apply bg-cosmic-bg text-white antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html, body, #root {
+    @apply h-full w-full overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-cosmic-card rounded-xl border border-cosmic-border p-4;
+  }
+  
+  .card-glow {
+    @apply card shadow-glow-purple;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-cosmic-purple hover:bg-cosmic-purple/80 rounded-lg font-semibold transition-all duration-200 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-cosmic-card hover:bg-cosmic-border rounded-lg font-semibold transition-all duration-200 active:scale-95;
+  }
+  
+  .progress-bar {
+    @apply h-2 bg-cosmic-border rounded-full overflow-hidden;
+  }
+  
+  .progress-fill {
+    @apply h-full transition-all duration-500 ease-out;
+  }
+  
+  .stat-bar {
+    @apply flex items-center gap-3 p-3 rounded-lg bg-cosmic-card/50;
+  }
+  
+  .timer-ring {
+    @apply relative flex items-center justify-center;
+  }
+}
+
+@layer utilities {
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.8);
+  }
+  
+  .text-glow-amber {
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(139, 92, 246, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+}
