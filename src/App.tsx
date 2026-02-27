@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 import { useLifeOSStore } from './store/lifeOsStore'
 import { seedDatabase } from './db/seed'
 import { Loader2 } from 'lucide-react'
@@ -8,9 +8,23 @@ import { HealthTab } from './components/Zones/HealthTab'
 import { ExpeditionTab } from './components/Zones/ExpeditionTab'
 import { WeeklySummary } from './components/Summary/WeeklySummary'
 import { HeroTab } from './components/Zones/HeroTab'
+import { useFloatingXP, FloatingXPContext } from './hooks/useFloatingXP'
+import { FloatingXP } from './components/FloatingXP'
+import { LevelUpModal } from './components/LevelUpModal'
 
+export interface LevelUpData {
+  newLevel: number;
+  newTitlePL: string;
+  accentColor: string;
+  badge: string;
+}
+
+export const LevelUpContext = createContext<(data: LevelUpData) => void>(() => { });
+export const useLevelUp = () => useContext(LevelUpContext);
 function App() {
-  const { initialize } = useLifeOSStore()
+  const { initialize, profile } = useLifeOSStore()
+  const { items, triggerXP, remove } = useFloatingXP()
+  const [levelUpData, setLevelUpData] = useState<LevelUpData | null>(null);
 
   // Get initial tab from hash or default to dashboard
   const getInitialTab = (): TabId => {
@@ -131,11 +145,30 @@ function App() {
       <div className="fixed inset-0 bg-[rgba(5,8,20,0.85)] z-[-1]" />
 
       {/* Main Content Area */}
-      <main className="w-full relative">
-        {renderView()}
-      </main>
+      <LevelUpContext.Provider value={setLevelUpData}>
+        <FloatingXPContext.Provider value={triggerXP}>
+          <main className="w-full relative">
+            {renderView()}
+          </main>
+        </FloatingXPContext.Provider>
+      </LevelUpContext.Provider>
 
       <BottomNav activeTab={currentTab} onTabChange={setCurrentTab} />
+
+      {/* Floating XP Animations System */}
+      {items.map(item => (
+        <FloatingXP key={item.id} {...item} onComplete={() => remove(item.id)} />
+      ))}
+
+      <LevelUpModal
+        isOpen={!!levelUpData}
+        newLevel={levelUpData?.newLevel || 1}
+        newTitlePL={levelUpData?.newTitlePL || ''}
+        accentColor={levelUpData?.accentColor || '#F59E0B'}
+        badge={levelUpData?.badge || '⚪'}
+        heroClass={profile?.heroClass || 'explorer'}
+        onClose={() => setLevelUpData(null)}
+      />
     </div>
   )
 }

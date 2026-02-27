@@ -36,7 +36,7 @@ export function HealthTab() {
                 className="fixed inset-0 bg-cover bg-center z-[-2]"
                 style={{ backgroundImage: "url('assets/health/health_sanctuary_bg.webp')" }}
             />
-            <div className="fixed inset-0 bg-[rgba(5,15,10,0.80)] z-[-1]" />
+            <div className="fixed inset-0 bg-[rgba(5,15,10,0.55)] z-[-1]" />
 
             <div className="p-4 space-y-4 safe-top">
                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-600 mb-6 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">

@@ -2,13 +2,18 @@ import { ArrowLeft, Play, Pause, RotateCcw } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useLifeOSStore } from '../../store/lifeOsStore'
 import { DailyQuests } from '../Quests/DailyQuests'
+import { getXPForAction, XPAction, getLevelData } from '../../engines/LevelingEngine'
+import { useTriggerXP } from '../../hooks/useFloatingXP'
+import { useLevelUp } from '../../App'
 
 interface WorkZoneProps {
   onBack: () => void
 }
 
 export function WorkZone({ onBack }: WorkZoneProps) {
-  const { awardXP, awardToken } = useLifeOSStore()
+  const { awardXP, awardToken, profile } = useLifeOSStore()
+  const triggerXP = useTriggerXP()
+  const setLevelUpData = useLevelUp()
 
   // Pomodoro State
   const [pomodoroMinutes, setPomodoroMinutes] = useState(25)
@@ -30,7 +35,26 @@ export function WorkZone({ onBack }: WorkZoneProps) {
             if (!isBreak) {
               // Work session complete
               setCompletedPomodoros(prev => prev + 1)
-              awardXP('quest_daily', 50, 'Ukończono sesję Pomodoro!')
+              const xpGain = getXPForAction(XPAction.POMODORO_COMPLETE)
+
+              if (profile) {
+                // awardXP handles DB saving, we just need to calculate level changes for UI
+                awardXP('quest_daily', xpGain, 'Ukończono sesję Pomodoro!')
+                const oldLevel = getLevelData((profile as any).xpTotal).current.level
+                const newLevelData = getLevelData((profile as any).xpTotal + xpGain).current
+
+                setTimeout(() => triggerXP(xpGain, undefined, undefined, newLevelData.accentColor), 500)
+
+                if (newLevelData.level > oldLevel) {
+                  setLevelUpData({
+                    newLevel: newLevelData.level,
+                    newTitlePL: newLevelData.titlePL,
+                    accentColor: newLevelData.accentColor,
+                    badge: newLevelData.badge
+                  })
+                }
+              }
+
               awardToken('focus', 1)
 
               // Start break

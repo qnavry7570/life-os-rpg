@@ -428,3 +428,9 @@ export interface SeasonalCampaign {
   finalRewardDescription: string
   finalRewardUnlocked: boolean
 }
+
+export interface AchievementRecord {
+  id?: number;
+  achievementId: string;
+  unlockedAt: Date;
+}

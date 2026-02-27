@@ -63,17 +63,18 @@ export class QuestEngine {
     }
 
     // 3. Central check: runs every 5 minutes to sync with DailyStats
-    static async checkAndUpdateQuests(): Promise<void> {
+    static async checkAndUpdateQuests(): Promise<{ newlyCompletedQuests: DailyQuestItem[], newXp: number }> {
         const today = getTodayDateString()
         const stats = await db.dailyStats.get(today)
-        if (!stats) return
+        if (!stats) return { newlyCompletedQuests: [], newXp: 0 }
 
         const record = await this.getActiveDailyQuests(today)
-        if (record.completedCount >= 3) return // All done
+        if (record.completedCount >= 3) return { newlyCompletedQuests: [], newXp: 0 }
 
         let updated = false
         let newlyCompleted = 0
         let newXp = 0
+        const newlyCompletedQuests: DailyQuestItem[] = []
 
         // Update Step Quest
         const stepQuest = record.quests.find(q => q.id === 'quest_steps')
@@ -84,6 +85,7 @@ export class QuestEngine {
                 stepQuest.status = 'completed'
                 newlyCompleted++
                 newXp += stepQuest.xpReward
+                newlyCompletedQuests.push(stepQuest)
             }
             updated = true
         }
@@ -97,6 +99,7 @@ export class QuestEngine {
                 calQuest.status = 'completed'
                 newlyCompleted++
                 newXp += calQuest.xpReward
+                newlyCompletedQuests.push(calQuest)
             }
             updated = true
         }
@@ -110,6 +113,7 @@ export class QuestEngine {
                 focusQuest.status = 'completed'
                 newlyCompleted++
                 newXp += focusQuest.xpReward
+                newlyCompletedQuests.push(focusQuest)
             }
             updated = true
         }
@@ -130,6 +134,8 @@ export class QuestEngine {
                 await this.awardQuestXP(newXp)
             }
         }
+
+        return { newlyCompletedQuests, newXp }
     }
 
     // Helper to sync awarded XP to Profile (similar to lifeOsStore.awardXp)

@@ -13,6 +13,7 @@ import type {
   Streak,
   SeasonalCampaign,
   DailyQuestRecord,
+  AchievementRecord,
 } from './types'
 
 export class LifeOSDatabase extends Dexie {
@@ -29,6 +30,7 @@ export class LifeOSDatabase extends Dexie {
   streaks!: Table<Streak>
   seasonalCampaigns!: Table<SeasonalCampaign>
   dailyQuests!: Table<DailyQuestRecord>
+  achievements!: Table<AchievementRecord>
 
   constructor() {
     super('LifeOS_DB')
@@ -51,7 +53,16 @@ export class LifeOSDatabase extends Dexie {
     this.version(2).stores({
       dailyQuests: '++id, date, completedCount'
     }).upgrade(() => {
-      // Optional: Data migration if needed
+    })
+
+    this.version(3).stores({
+      achievements: '++id, achievementId, unlockedAt',
+      // We alter xpEvents slightly to support new schema if needed, but Dexie handles modifying fields.
+    }).upgrade(async trans => {
+      const profile = await trans.table('profile').toCollection().first();
+      if (profile && profile.xpTotal === undefined) {
+        await trans.table('profile').update(profile.id, { xpTotal: 0, level: 1 });
+      }
     })
   }
 }

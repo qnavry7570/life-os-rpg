@@ -3,10 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { QuestEngine } from '../../engines/QuestEngine'
 import type { DailyQuestItem } from '../../db/types'
-
+import { useTriggerXP } from '../../hooks/useFloatingXP'
+import { useLevelUp } from '../../App'
+import { useLifeOSStore } from '../../store/lifeOsStore'
+import { getLevelData } from '../../engines/LevelingEngine'
 export function DailyQuests() {
   const [quests, setQuests] = useState<DailyQuestItem[]>([])
   const [allCompleted, setAllCompleted] = useState(false)
+  const { loadProfile } = useLifeOSStore()
+  const triggerXP = useTriggerXP()
+  const setLevelUpData = useLevelUp()
 
   const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === 'true'
 
@@ -26,9 +32,28 @@ export function DailyQuests() {
       }
 
       const today = new Date().toISOString().split('T')[0]
-      await QuestEngine.checkAndUpdateQuests() // Sync before fetching
+      const { newlyCompletedQuests, newXp } = await QuestEngine.checkAndUpdateQuests() // Sync before fetching
       const record = await QuestEngine.getActiveDailyQuests(today)
       setQuests(record.quests)
+      if (newlyCompletedQuests.length > 0 && newXp > 0) {
+        await loadProfile()
+        const updatedProfile = useLifeOSStore.getState().profile
+        triggerXP(newXp)
+
+        if (updatedProfile) {
+          const oldLevel = getLevelData((updatedProfile as any).xpTotal - newXp).current.level
+          const newLevelData = getLevelData((updatedProfile as any).xpTotal).current
+
+          if (newLevelData.level > oldLevel) {
+            setLevelUpData({
+              newLevel: newLevelData.level,
+              newTitlePL: newLevelData.titlePL,
+              accentColor: newLevelData.accentColor,
+              badge: newLevelData.badge
+            })
+          }
+        }
+      }
 
       if (record.completedCount >= 3 && !allCompleted) {
         setAllCompleted(true)

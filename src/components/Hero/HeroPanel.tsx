@@ -3,6 +3,7 @@ import { Settings } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLifeOSStore } from '../../store/lifeOsStore'
 import { NotificationService } from '../../services/NotificationService'
+import { getLevelData } from '../../engines/LevelingEngine'
 
 const heroConfig: Record<string, { img: string; glow: string; color: string }> = {
   explorer: { img: 'assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
@@ -10,11 +11,18 @@ const heroConfig: Record<string, { img: string; glow: string; color: string }> =
   warrior: { img: 'assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
 }
 
+const RING_SIZE = 120;
+const RADIUS = 52;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 export function HeroPanel() {
-  const { profile, updateProfile } = useLifeOSStore()
+  const storeProfile = useLifeOSStore(state => state.profile)
+  const updateProfile = useLifeOSStore(state => state.updateProfile)
   const [showBanner, setShowBanner] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -24,26 +32,31 @@ export function HeroPanel() {
 
   // Auto-set heroClass to 'explorer' if null (first launch check)
   useEffect(() => {
-    if (profile && !profile.heroClass) {
+    if (storeProfile && !storeProfile.heroClass) {
       updateProfile({ heroClass: 'Explorer' as any })
       setShowBanner(true)
     }
-  }, [profile, updateProfile])
+  }, [storeProfile, updateProfile])
 
-  // Also check if they are the default Explorer but hasn't explicitly dismissed it
-  // (Optional: Just show if they haven't dismissed. Here we show it if they naturally landed on Explorer without explicitly picking maybe. For simplicity we use local state or localStorage).
   useEffect(() => {
-    if (profile?.heroClass === 'Explorer' && !localStorage.getItem('lifeos_hero_dismissed')) {
+    if (storeProfile?.heroClass === 'Explorer' && !localStorage.getItem('lifeos_hero_dismissed')) {
       setShowBanner(true)
     }
-  }, [profile])
+  }, [storeProfile])
 
-  if (!profile) return null
+  if (!storeProfile && !isPreview) return null
 
-  const classKey = profile.heroClass?.toLowerCase() || 'explorer'
-  const config = heroConfig[classKey] || heroConfig.explorer
+  // Mock profile fallback
+  const mockProfile = { xpTotal: 2750, level: 9, heroClass: 'explorer', heroName: 'Bohater Próbny', masterStreak: 5, focusTokens: 12 };
+  const profile = isPreview ? mockProfile : storeProfile!;
 
-  const xpPercent = (profile.xpCurrentLevel / (profile.xpCurrentLevel + profile.xpToNextLevel)) * 100
+  const { current, progressPercent, xpIntoLevel } = getLevelData((profile as any).xpTotal || 0);
+
+  const tierBadgeName = current.level <= 10 ? 'NOWICJUSZ' :
+    current.level <= 20 ? 'ADEPT' :
+      current.level <= 30 ? 'MISTRZ' :
+        current.level <= 40 ? 'LEGENDA' :
+          current.level <= 49 ? 'BÓG' : '👑 BÓG ŻYCIA';
 
   const handleDismissBanner = () => {
     setShowBanner(false)
@@ -51,7 +64,6 @@ export function HeroPanel() {
   }
 
   const handleSelectClass = (newClass: string) => {
-    // capitalize
     const capitalized = newClass.charAt(0).toUpperCase() + newClass.slice(1)
     updateProfile({ heroClass: capitalized as any })
     setShowModal(false)
@@ -91,28 +103,75 @@ export function HeroPanel() {
           )}
         </AnimatePresence>
 
-        {/* Hero Avatar & Identity */}
-        <div className="flex flex-col items-center gap-3 mb-5">
-          <div className={`relative w-[120px] h-[160px] rounded-2xl overflow-hidden border-2 border-opacity-50 ${config.glow}`} style={{ borderColor: config.color }}>
-            {/* Fallback gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card`} />
-            <img
-              src={config.img}
-              alt={profile.heroClass}
-              className="absolute inset-0 w-full h-full object-cover z-10"
-              loading="lazy"
-              decoding="async"
-              onError={(e) => (e.currentTarget.style.opacity = '0')}
-            />
+        {/* Hero Avatar & Circular XP Ring */}
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <div className="relative flex items-center justify-center" style={{ width: RING_SIZE, height: RING_SIZE }}>
+            <svg width={RING_SIZE} height={RING_SIZE} className="absolute top-0 left-0 -rotate-90">
+              {/* Track */}
+              <circle cx={60} cy={60} r={RADIUS} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={6} />
+              {/* Progress — animowany Framer Motion */}
+              <motion.circle
+                cx={60} cy={60} r={RADIUS}
+                fill="none"
+                stroke={current.accentColor}
+                strokeWidth={6}
+                strokeLinecap="round"
+                strokeDasharray={CIRCUMFERENCE}
+                initial={{ strokeDashoffset: CIRCUMFERENCE }}
+                animate={{ strokeDashoffset: Math.max(0, CIRCUMFERENCE - (progressPercent / 100) * CIRCUMFERENCE) }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+              />
+            </svg>
+            {/* Avatar w środku */}
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-transparent">
+              <div className="absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card z-0" />
+              <img
+                src={`assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.webp`}
+                alt="Hero"
+                className="absolute inset-0 w-full h-full object-cover object-top z-10"
+                loading="lazy" decoding="async"
+                onError={(e) => (e.currentTarget.style.opacity = '0')}
+              />
+            </div>
+            {/* Level badge na dole ringa */}
+            <div
+              className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold border whitespace-nowrap"
+              style={{ color: current.accentColor, borderColor: current.accentColor + '60', background: current.accentColor + '20' }}
+            >
+              Lv {current.level}
+            </div>
           </div>
 
-          <div className="text-center mt-1">
-            <h1 className="text-2xl font-bold font-serif tracking-wide" style={{ textShadow: `0 0 10px ${config.color}80` }}>
-              {profile.heroName}
-            </h1>
-            <p className="text-sm text-gray-400 font-medium">
-              Poziom {profile.level} {profile.heroClass}
+          {/* Title Section */}
+          <div className="text-center mt-3 px-2 w-full">
+            <h2 className="text-white font-bold text-lg leading-tight">{profile.heroName || 'Bohater'}</h2>
+            <p className="text-xs font-semibold mt-1" style={{ color: current.accentColor }}>
+              {current.badge} {current.titlePL}
             </p>
+            <p className="text-gray-500 text-xs mt-0.5 capitalize">{profile.heroClass || 'explorer'}</p>
+
+            {/* Tier badge */}
+            <div className="inline-flex items-center gap-1 mt-3 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider"
+              style={{ background: current.accentColor + '15', color: current.accentColor, border: `1px solid ${current.accentColor}30` }}>
+              {tierBadgeName}
+            </div>
+
+            {/* Linear XP bar */}
+            <div className="mt-4 mb-2">
+              <div className="flex justify-between text-[10px] text-gray-500 font-medium mb-1.5 px-1">
+                <span>{Math.floor(xpIntoLevel)} XP</span>
+                <span>{current.xpToNext > 0 ? current.xpToNext + ' XP' : 'MAX'}</span>
+              </div>
+              <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${current.accentColor}88, ${current.accentColor})` }}
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -129,25 +188,6 @@ export function HeroPanel() {
               💠 {profile.focusTokens || 0}
             </div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider">Tokeny Skupienia</p>
-          </div>
-        </div>
-
-        {/* XP Progress Bar */}
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between text-xs text-gray-400 font-medium px-1">
-            <span>XP do Następnego Poziomu</span>
-            <span style={{ color: config.color }}>
-              {Math.floor(profile.xpCurrentLevel).toLocaleString()} / {profile.xpToNextLevel.toLocaleString()}
-            </span>
-          </div>
-          <div className="h-3 bg-black/40 rounded-full overflow-hidden border border-white/5">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${xpPercent}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-              className={`h-full ${config.glow}`}
-              style={{ backgroundColor: config.color }}
-            />
           </div>
         </div>
 
