@@ -1,0 +1,2 @@
+﻿src/components/Expeditions/ExpeditionPreview.tsx(2,18): error TS6133: 'AnimatePresence' is declared but its value is never read.
+src/components/Summary/WeeklySummary.tsx(4,31): error TS6133: 'onBack' is declared but its value is never read.

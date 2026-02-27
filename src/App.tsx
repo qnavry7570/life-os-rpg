@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useLifeOSStore } from './store/lifeOsStore'
 import { seedDatabase } from './db/seed'
-import { ZoneMap } from './components/Map/ZoneMap'
-import { HealthZone } from './components/Zones/HealthZone'
+import { Loader2 } from 'lucide-react'
+import { BottomNav, TabId } from './components/Navigation/BottomNav'
 import { WorkZone } from './components/Zones/WorkZone'
-import { SanctuaryZone } from './components/Zones/SanctuaryZone'
-import { SocialZone } from './components/Zones/SocialZone'
+import { HealthTab } from './components/Zones/HealthTab'
+import { ExpeditionTab } from './components/Zones/ExpeditionTab'
 import { WeeklySummary } from './components/Summary/WeeklySummary'
-import { Loader2, BarChart3 } from 'lucide-react'
-
-type View = 'map' | 'health' | 'work' | 'sanctuary' | 'social' | 'summary'
+import { HeroTab } from './components/Zones/HeroTab'
 
 function App() {
   const { initialize, isLoading } = useLifeOSStore()
-  const [currentView, setCurrentView] = useState<View>('map')
-  
+
+  // Persist tab via localStorage
+  const getInitialTab = (): TabId => {
+    const saved = localStorage.getItem('lifeos_active_tab') as TabId
+    return saved || 'dashboard'
+  }
+
+  const [currentTab, setCurrentTab] = useState<TabId>(getInitialTab)
+
   useEffect(() => {
     const init = async () => {
       await seedDatabase()
@@ -22,7 +27,7 @@ function App() {
     }
     init()
   }, [initialize])
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cosmic-bg">
@@ -33,38 +38,41 @@ function App() {
       </div>
     )
   }
-  
+
   const renderView = () => {
-    switch (currentView) {
+    switch (currentTab) {
+      case 'dashboard':
+        return <WorkZone onBack={() => { }} /> // Removing onBack as we navigate via tabs
       case 'health':
-        return <HealthZone onBack={() => setCurrentView('map')} />
-      case 'work':
-        return <WorkZone onBack={() => setCurrentView('map')} />
-      case 'sanctuary':
-        return <SanctuaryZone onBack={() => setCurrentView('map')} />
-      case 'social':
-        return <SocialZone onBack={() => setCurrentView('map')} />
-      case 'summary':
-        return <WeeklySummary onBack={() => setCurrentView('map')} />
+        return <HealthTab />
+      case 'expedition':
+        return <ExpeditionTab />
+      case 'stats':
+        return <WeeklySummary />
+      case 'hero':
+        return <HeroTab />
       default:
-        return <ZoneMap onZoneClick={(zoneId) => setCurrentView(zoneId as View)} />
+        return <WorkZone onBack={() => { }} />
     }
   }
-  
+
   return (
-    <div className="relative">
-      {renderView()}
-      
-      {/* Floating Summary Button (only on map view) */}
-      {currentView === 'map' && (
-        <button
-          onClick={() => setCurrentView('summary')}
-          className="fixed bottom-6 right-6 btn-primary p-4 rounded-full shadow-glow-purple hover:scale-110 transition-transform"
-          aria-label="Weekly Summary"
-        >
-          <BarChart3 className="w-6 h-6" />
-        </button>
-      )}
+    <div className="relative min-h-screen pb-24">
+      {/* Fixed Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center z-[-2]"
+        style={{ backgroundImage: "url('/assets/map/map_world_bg.webp')" }}
+      />
+
+      {/* Dark Overlay */}
+      <div className="fixed inset-0 bg-[rgba(5,8,20,0.85)] z-[-1]" />
+
+      {/* Main Content Area */}
+      <main className="w-full relative">
+        {renderView()}
+      </main>
+
+      <BottomNav activeTab={currentTab} onTabChange={setCurrentTab} />
     </div>
   )
 }
