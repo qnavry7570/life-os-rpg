@@ -4,7 +4,7 @@ import { HealthZone } from './HealthZone'
 import { useLifeOSStore } from '../../store/lifeOsStore'
 
 export function HealthTab() {
-    const { isLoaded, error } = useImagePreload('assets/health/health_sanctuary_bg.webp')
+    const { isLoaded, error } = useImagePreload('/life-os-rpg/assets/health/health_sanctuary_bg.webp')
     const { todayStats, currentCalorieBalance } = useLifeOSStore()
     const activeQuests = useLifeOSStore(state => state.activeQuests)
 
@@ -34,7 +34,7 @@ export function HealthTab() {
             {/* Background Image restricted to HealthTab */}
             <div
                 className="fixed inset-0 bg-cover bg-center z-[-2]"
-                style={{ backgroundImage: "url('assets/health/health_sanctuary_bg.webp')" }}
+                style={{ backgroundImage: "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')" }}
             />
             <div className="fixed inset-0 bg-[rgba(5,15,10,0.55)] z-[-1]" />
 

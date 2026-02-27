@@ -6,9 +6,9 @@ import { NotificationService } from '../../services/NotificationService'
 import { getLevelData } from '../../engines/LevelingEngine'
 
 const heroConfig: Record<string, { img: string; glow: string; color: string }> = {
-  explorer: { img: 'assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
-  scholar: { img: 'assets/hero/hero_scholar.webp', glow: 'glow-blue', color: '#60a5fa' },
-  warrior: { img: 'assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
+  explorer: { img: '/life-os-rpg/assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
+  scholar: { img: '/life-os-rpg/assets/hero/hero_scholar.webp', glow: 'glow-blue', color: '#60a5fa' },
+  warrior: { img: '/life-os-rpg/assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
 }
 
 const RING_SIZE = 120;
@@ -50,7 +50,8 @@ export function HeroPanel() {
   const mockProfile = { xpTotal: 2750, level: 9, heroClass: 'explorer', heroName: 'Bohater Próbny', masterStreak: 5, focusTokens: 12 };
   const profile = isPreview ? mockProfile : storeProfile!;
 
-  const { current, progressPercent, xpIntoLevel } = getLevelData((profile as any).xpTotal || 0);
+  const totalXP = isPreview ? 2750 : ((profile as any).xpTotal ?? 0);
+  const { current, progressPercent, xpIntoLevel } = getLevelData(totalXP);
 
   const tierBadgeName = current.level <= 10 ? 'NOWICJUSZ' :
     current.level <= 20 ? 'ADEPT' :
@@ -126,7 +127,7 @@ export function HeroPanel() {
             <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-transparent">
               <div className="absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card z-0" />
               <img
-                src={`assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.webp`}
+                src={`/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.webp`}
                 alt="Hero"
                 className="absolute inset-0 w-full h-full object-cover object-top z-10"
                 loading="lazy" decoding="async"

@@ -79,7 +79,7 @@ export function LevelUpModal({ isOpen, newLevel, newTitlePL, accentColor, badge,
                             <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-transparent">
                                 <div className="absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card z-0" />
                                 <img
-                                    src={`assets/hero/hero_${heroClass?.toLowerCase() || 'explorer'}.webp`}
+                                    src={`/life-os-rpg/assets/hero/hero_${heroClass?.toLowerCase() || 'explorer'}.webp`}
                                     alt="Hero"
                                     className="absolute inset-0 w-full h-full object-cover object-top z-10"
                                     loading="lazy" decoding="async"
