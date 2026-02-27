@@ -10,7 +10,7 @@ import { WeeklySummary } from './components/Summary/WeeklySummary'
 import { HeroTab } from './components/Zones/HeroTab'
 
 function App() {
-  const { initialize, isLoading } = useLifeOSStore()
+  const { initialize } = useLifeOSStore()
 
   // Get initial tab from hash or default to dashboard
   const getInitialTab = (): TabId => {
@@ -45,15 +45,44 @@ function App() {
     }
   }, [currentTab])
 
+  const MIN_SPLASH_DURATION = 800
+  const MAX_SPLASH_DURATION = 2000
+
+  const [isReady, setIsReady] = useState(false)
+
   useEffect(() => {
+    const startTime = Date.now()
+
+    // Safety fallback: Force UI to show after MAX_SPLASH_DURATION
+    const fallbackTimeout = setTimeout(() => {
+      setIsReady(true)
+    }, MAX_SPLASH_DURATION)
+
     const init = async () => {
-      await seedDatabase()
-      await initialize()
+      try {
+        await seedDatabase()
+        await initialize()
+      } catch (error) {
+        console.error("Initialization error:", error)
+      } finally {
+        const elapsed = Date.now() - startTime
+        const remainingTime = Math.max(0, MIN_SPLASH_DURATION - elapsed)
+
+        // Wait for MIN_SPLASH_DURATION before removing splash
+        setTimeout(() => {
+          clearTimeout(fallbackTimeout)
+          setIsReady(true)
+        }, remainingTime)
+      }
     }
+
     init()
+
+    return () => clearTimeout(fallbackTimeout)
   }, [initialize])
 
-  if (isLoading) {
+  // Show loading spinner only until our min/max duration resolves
+  if (!isReady) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cosmic-bg">
         <div className="text-center space-y-4">
