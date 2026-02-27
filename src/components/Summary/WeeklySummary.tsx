@@ -79,8 +79,8 @@ export function WeeklySummary() {
 
       <div className="card bg-kosmic-card/80 backdrop-blur-sm border-white/10 p-4 space-y-2 glow-amber">
         <h3 className="font-bold text-sm text-gray-300">Spalone Kalorie</h3>
-        <div className="h-48 pt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="pt-4" style={{ minHeight: '200px' }}>
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart data={MOCK_CALORIES_CHART}>
               <XAxis dataKey="day" stroke="#9ca3af" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip

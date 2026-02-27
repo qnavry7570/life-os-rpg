@@ -110,7 +110,7 @@ export function HeroPanel() {
         {/* Hero Avatar & Circular XP Ring */}
         <div className="flex flex-col items-center gap-2 mb-4">
           <div className="relative flex items-center justify-center" style={{ width: RING_SIZE, height: RING_SIZE }}>
-            <svg width={RING_SIZE} height={RING_SIZE} className="absolute top-0 left-0 -rotate-90">
+            <svg width={RING_SIZE} height={RING_SIZE} className="absolute top-0 left-0" style={{ transform: 'rotate(-90deg)' }}>
               {/* Track */}
               <circle cx={60} cy={60} r={RADIUS} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={6} />
               {/* Progress — animowany Framer Motion */}
@@ -118,8 +118,9 @@ export function HeroPanel() {
                 cx={60} cy={60} r={RADIUS}
                 fill="none"
                 stroke={current.accentColor}
-                strokeWidth={6}
+                strokeWidth={8}
                 strokeLinecap="round"
+                style={{ filter: `drop-shadow(0 0 6px ${current.accentColor})` }}
                 strokeDasharray={CIRCUMFERENCE}
                 strokeDashoffset={strokeDashoffset}
                 initial={{ strokeDashoffset: CIRCUMFERENCE }}
@@ -141,7 +142,7 @@ export function HeroPanel() {
                     target.src = `/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.png`;
                   } else {
                     target.style.display = 'none';
-                    target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-4xl z-10">⚔️</div>';
+                    target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-[48px] text-center w-full h-full z-10">⚔️</div>';
                   }
                 }}
               />
