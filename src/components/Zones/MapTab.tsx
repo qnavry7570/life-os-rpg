@@ -68,9 +68,20 @@ export function MapTab() {
 
     const getTrekImage = (trekId: string) => {
         switch (trekId) {
+            case 'tatry_glowny': return '/life-os-rpg/assets/expeditions/trail_tatry.png'
+            case 'szlak_beskidzki': return '/life-os-rpg/assets/expeditions/trail_beskidy.png'
+            case 'szlak_nadmorski': return '/life-os-rpg/assets/expeditions/trail_nadmorski.png'
             case 'camino_santiago': return '/life-os-rpg/assets/expeditions/trail_camino.webp'
-            case 'everest_base_camp': return '/life-os-rpg/assets/expeditions/trail_ebc.webp'
-            case 'orla_perc': return '/life-os-rpg/assets/expeditions/trail_tatry.webp'
+            case 'tour_mont_blanc': return '/life-os-rpg/assets/expeditions/trail_mont_blanc.webp'
+            case 'gr20_korsyka': return '/life-os-rpg/assets/expeditions/trail_gr20.png'
+            case 'appalachian_trail': return '/life-os-rpg/assets/expeditions/trail_appalachian.webp'
+            case 'inca_trail': return '/life-os-rpg/assets/expeditions/trail_inca.png'
+            case 'everest_base_camp': return '/life-os-rpg/assets/expeditions/trail_ebc.png'
+            case 'nakasendo_japonia': return '/life-os-rpg/assets/expeditions/trail_nakasendo.png'
+            case 'city_tokyo': return '/life-os-rpg/assets/expeditions/city_tokyo.png'
+            case 'city_nyc': return '/life-os-rpg/assets/expeditions/city_nyc.png'
+            case 'city_london': return '/life-os-rpg/assets/expeditions/city_london.png'
+            case 'city_rome': return '/life-os-rpg/assets/expeditions/city_rome.png'
             default: return '/life-os-rpg/assets/expeditions/trail_camino.webp'
         }
     }
