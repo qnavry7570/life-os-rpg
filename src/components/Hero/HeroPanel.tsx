@@ -47,14 +47,14 @@ export function HeroPanel() {
   if (!storeProfile && !isPreview) return null
 
   // Mock profile fallback
-  const mockProfile = { xpTotal: 2750, level: 9, heroClass: 'explorer', heroName: 'Bohater Próbny', masterStreak: 5, focusTokens: 12 };
+  const mockProfile = { xpTotal: 3150, level: 9, heroClass: 'explorer', heroName: 'Bohater Próbny', masterStreak: 5, focusTokens: 12 };
   const profile = isPreview ? mockProfile : storeProfile!;
 
-  const totalXP = isPreview ? 2750 : ((profile as any).xpTotal ?? 0);
+  const totalXP = isPreview ? 3150 : ((profile as any).xpTotal ?? 0);
   const { current, progressPercent, xpIntoLevel } = getLevelData(totalXP);
 
-  const fillPercent = current.xpToNext > 0 ? xpIntoLevel / current.xpToNext : 1;
-  const strokeDashoffset = CIRCUMFERENCE * (1 - fillPercent);
+  const xpFraction = current.xpToNext > 0 ? xpIntoLevel / current.xpToNext : 1;
+  const strokeDashoffset = CIRCUMFERENCE - (xpFraction * CIRCUMFERENCE);
 
   const tierBadgeName = current.level <= 10 ? 'NOWICJUSZ' :
     current.level <= 20 ? 'ADEPT' :
@@ -107,9 +107,24 @@ export function HeroPanel() {
           )}
         </AnimatePresence>
 
-        {/* Hero Avatar & Circular XP Ring */}
-        <div className="flex flex-col items-center gap-2 mb-4">
-          <div className="relative flex items-center justify-center" style={{ width: RING_SIZE, height: RING_SIZE }}>
+        {/* Full-width Avatar */}
+        <div className="w-full h-[280px] rounded-2xl overflow-hidden relative mb-4 border border-white/10 shadow-lg">
+          <img
+            src="/life-os-rpg/assets/hero/hero_warrior.webp"
+            alt="Hero cover"
+            className="w-full h-full object-cover object-top"
+            loading="lazy" decoding="async"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.style.display = 'none';
+              target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-[64px] bg-black/50 text-center w-full h-full z-10">⚔️</div>';
+            }}
+          />
+        </div>
+
+        {/* Circular XP Ring & Level */}
+        <div className="flex flex-col items-center gap-2 mb-4 -mt-16">
+          <div className="relative flex items-center justify-center bg-cosmic-card rounded-full z-20 shadow-xl" style={{ width: RING_SIZE, height: RING_SIZE }}>
             <svg width={RING_SIZE} height={RING_SIZE} className="absolute top-0 left-0" style={{ transform: 'rotate(-90deg)' }}>
               {/* Track */}
               <circle cx={60} cy={60} r={RADIUS} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={6} />
@@ -128,36 +143,16 @@ export function HeroPanel() {
                 transition={{ duration: 1.5, ease: 'easeOut' }}
               />
             </svg>
-            {/* Avatar w środku */}
-            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-transparent">
-              <div className="absolute inset-0 bg-gradient-to-b from-cosmic-bg to-cosmic-card z-0" />
-              <img
-                src={`/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.webp`}
-                alt="Hero avatar"
-                className="absolute inset-0 w-full h-full object-cover object-top z-10"
-                loading="lazy" decoding="async"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.endsWith('.webp')) {
-                    target.src = `/life-os-rpg/assets/hero/hero_${profile.heroClass?.toLowerCase() || 'explorer'}.png`;
-                  } else {
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-[48px] text-center w-full h-full z-10">⚔️</div>';
-                  }
-                }}
-              />
-            </div>
-            {/* Level badge na dole ringa */}
-            <div
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold border whitespace-nowrap"
-              style={{ color: current.accentColor, borderColor: current.accentColor + '60', background: current.accentColor + '20' }}
-            >
-              Lv {current.level}
+            <div className="absolute flex flex-col items-center justify-center text-center bg-cosmic-bg w-20 h-20 rounded-full border border-white/5">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mb-1 mt-1">Poziom</span>
+              <span className="text-4xl font-black leading-none" style={{ color: current.accentColor, textShadow: `0 0 10px ${current.accentColor}80` }}>
+                {current.level}
+              </span>
             </div>
           </div>
 
           {/* Title Section */}
-          <div className="text-center mt-3 px-2 w-full">
+          <div className="text-center mt-1 px-2 w-full">
             <h2 className="text-white font-bold text-lg leading-tight">{profile.heroName || 'Bohater'}</h2>
             <p className="text-xs font-semibold mt-1" style={{ color: current.accentColor }}>
               {current.badge} {current.titlePL}
@@ -198,7 +193,7 @@ export function HeroPanel() {
           </div>
           <div className="text-center flex-1">
             <div className="text-cosmic-cyan text-lg font-bold flex justify-center items-center gap-1">
-              💠 {profile.focusTokens || 0}
+              💠 {profile.focusTokens ?? 12}
             </div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider">Tokeny Skupienia</p>
           </div>

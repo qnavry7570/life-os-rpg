@@ -1,4 +1,4 @@
-import { db } from '../db/database'
+import { db, dbReady } from '../db/database'
 
 export interface HydrationState {
     id?: number;
@@ -14,6 +14,7 @@ export const GOAL_OPTIONS = [1500, 2000, 2400, 3000];
 
 export class HydrationEngine {
     static async getTodayState(): Promise<HydrationState> {
+        await dbReady;
         const today = new Date().toISOString().split('T')[0];
         let state = await db.hydration.get(today);
 
@@ -33,6 +34,7 @@ export class HydrationEngine {
     }
 
     static async addWater(ml: number): Promise<HydrationState> {
+        await dbReady;
         const state = await this.getTodayState();
         const now = new Date();
 
@@ -84,6 +86,7 @@ export class HydrationEngine {
     }
 
     static async updateGoal(newGoal: number): Promise<HydrationState> {
+        await dbReady;
         const state = await this.getTodayState();
         state.goalMl = newGoal;
         localStorage.setItem('lifeos_hydration_goal', newGoal.toString());

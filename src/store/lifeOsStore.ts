@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { db, getTodayDateString, xpForLevel, levelFromXp } from '../db/database'
+import { db, dbReady, getTodayDateString, xpForLevel, levelFromXp } from '../db/database'
 import type {
   Profile,
   DailyStats,
@@ -93,6 +93,7 @@ export const useLifeOSStore = create<LifeOSState>((set, get) => ({
   initialize: async () => {
     set({ isLoading: true })
     try {
+      await dbReady; // IMPORTANT: wait for DB to open
       await get().loadProfile()
       await get().loadTodayStats()
       await get().loadTimers()

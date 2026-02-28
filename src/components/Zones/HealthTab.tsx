@@ -7,7 +7,7 @@ import { useLifeOSStore } from '../../store/lifeOsStore'
 import { HydrationEngine, HydrationState, GOAL_OPTIONS } from '../../engines/HydrationEngine'
 
 export function HealthTab() {
-    const { isLoaded, error } = useImagePreload('/life-os-rpg/assets/health/health_sanctuary_bg.webp')
+    const { isLoaded, error } = useImagePreload('/life-os-rpg/assets/backgrounds/bg_health.webp')
     const { todayStats, currentCalorieBalance } = useLifeOSStore()
     const activeQuests = useLifeOSStore(state => state.activeQuests)
 
@@ -109,8 +109,8 @@ export function HealthTab() {
                 <div
                     className="fixed inset-0 bg-cover bg-center z-[-2]"
                     style={{
-                        backgroundImage: "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')",
-                        background: isLoaded ? "url('/life-os-rpg/assets/health/health_sanctuary_bg.webp')" : "linear-gradient(135deg, #0a1628 0%, #0d2818 50%, #1a0a28 100%)",
+                        backgroundImage: "url('/life-os-rpg/assets/backgrounds/bg_health.webp')",
+                        background: isLoaded ? "url('/life-os-rpg/assets/backgrounds/bg_health.webp')" : "linear-gradient(135deg, #0a1628 0%, #0d2818 50%, #1a0a28 100%)",
                         backgroundSize: 'cover',
                         backgroundPosition: 'center'
                     }}

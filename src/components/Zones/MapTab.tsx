@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import { Trek, TREKS } from '../../data/TrekDatabase';
 import { ExpeditionEngine } from '../../engines/ExpeditionEngine';
@@ -68,6 +66,15 @@ export function MapTab() {
 
     const progressPercent = ExpeditionEngine.getProgressPercent(activeExp, trek);
 
+    const getTrekImage = (trekId: string) => {
+        switch (trekId) {
+            case 'camino_santiago': return '/life-os-rpg/assets/expeditions/trail_camino.webp'
+            case 'everest_base_camp': return '/life-os-rpg/assets/expeditions/trail_ebc.webp'
+            case 'orla_perc': return '/life-os-rpg/assets/expeditions/trail_tatry.webp'
+            default: return '/life-os-rpg/assets/expeditions/trail_camino.webp'
+        }
+    }
+
     return (
         <motion.div
             initial="hidden" animate="visible"
@@ -89,22 +96,14 @@ export function MapTab() {
                     </div>
                 </div>
 
-                <div className="relative w-full h-[200px] rounded-xl overflow-hidden border border-white/5 pointer-events-none">
-                    {/* Non-interactive Map */}
-                    <MapContainer
-                        center={[trek.centerLat, trek.centerLng]}
-                        zoom={trek.zoomLevel}
-                        style={{ height: '100%', width: '100%' }}
-                        zoomControl={false}
-                        dragging={false}
-                        scrollWheelZoom={false}
-                        doubleClickZoom={false}
-                        touchZoom={false}
-                    >
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <Polyline positions={trek.route} color={trek.accentColor} weight={3} opacity={0.8} />
-                    </MapContainer>
-                </div>
+                <div
+                    className="w-full h-[220px] rounded-xl border border-white/10 shadow-lg"
+                    style={{
+                        backgroundImage: `url('${getTrekImage(trek.id)}')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                    }}
+                />
 
                 <div className="w-full">
                     <div className="flex justify-between text-xs font-bold text-gray-300 mb-1">

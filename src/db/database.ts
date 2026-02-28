@@ -76,6 +76,7 @@ export class LifeOSDatabase extends Dexie {
 }
 
 export const db = new LifeOSDatabase()
+export const dbReady = db.open();
 
 // Helper function to calculate XP needed for level
 export function xpForLevel(level: number): number {
