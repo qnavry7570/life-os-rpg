@@ -8,7 +8,7 @@ import { getLevelData } from '../../engines/LevelingEngine'
 const heroConfig: Record<string, { img: string; glow: string; color: string }> = {
   explorer: { img: '/life-os-rpg/assets/hero/hero_explorer.webp', glow: 'glow-amber', color: '#f59e0b' },
   scholar: { img: '/life-os-rpg/assets/hero/hero_scholar.webp', glow: 'glow-blue', color: '#60a5fa' },
-  warrior: { img: '/life-os-rpg/assets/hero/hero_warrior.webp', glow: 'glow-green', color: '#4ade80' },
+  warrior: { img: '/life-os-rpg/assets/hero/hero_warrior_female.webp', glow: 'glow-green', color: '#4ade80' },
 }
 
 const RING_SIZE = 120;
@@ -107,20 +107,19 @@ export function HeroPanel() {
           )}
         </AnimatePresence>
 
-        {/* Full-width Avatar */}
-        <div className="w-full h-[280px] rounded-2xl overflow-hidden relative mb-4 border border-white/10 shadow-lg">
-          <img
-            src="/life-os-rpg/assets/hero/hero_warrior.webp"
-            alt="Hero cover"
-            className="w-full h-full object-cover object-top"
-            loading="lazy" decoding="async"
-            onError={(e) => {
-              const target = e.currentTarget;
-              target.style.display = 'none';
-              target.parentElement!.innerHTML += '<div class="absolute inset-0 flex items-center justify-center text-[64px] bg-black/50 text-center w-full h-full z-10">⚔️</div>';
-            }}
-          />
-        </div>
+        {/* Full-width Avatar — dynamic based on heroClass */}
+        {(() => {
+          const heroClassKey = ((profile as any).heroClass || 'explorer').toLowerCase();
+          const avatarSrc = heroConfig[heroClassKey]?.img || '/life-os-rpg/assets/hero/hero_explorer.webp';
+          return (
+            <div
+              className="w-full h-[280px] rounded-2xl overflow-hidden relative mb-4 border border-white/10 shadow-lg bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url('${avatarSrc}')` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            </div>
+          );
+        })()}
 
         {/* Circular XP Ring & Level */}
         <div className="flex flex-col items-center gap-2 mb-4 -mt-16">

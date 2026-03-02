@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 import { ACHIEVEMENTS, RARITY_CONFIG } from '../../engines/AchievementEngine';
 
+const BADGE_IMAGES: Record<string, string> = {
+  common:    '/life-os-rpg/assets/achievements/badge_common.webp',
+  rare:      '/life-os-rpg/assets/achievements/badge_rare.webp',
+  epic:      '/life-os-rpg/assets/achievements/badge_epic.webp',
+  legendary: '/life-os-rpg/assets/achievements/badge_legendary.webp',
+};
+
 export function AchievementsSection() {
     const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
 
@@ -41,6 +48,14 @@ export function AchievementsSection() {
                             transition={{ delay: index * 0.03 }}
                             whileHover={isUnlocked ? { scale: 1.05 } : {}}
                         >
+                            {/* Badge background image */}
+                            <img
+                                src={BADGE_IMAGES[achievement.rarity]}
+                                alt=""
+                                aria-hidden="true"
+                                className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                                style={{ opacity: isUnlocked ? 0.15 : 0.05, filter: isUnlocked ? 'none' : 'grayscale(1)' }}
+                            />
                             {isUnlocked && (
                                 <span className="absolute top-1 right-1 text-[10px]">✅</span>
                             )}

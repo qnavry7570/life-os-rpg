@@ -45,20 +45,41 @@ export function MapTab() {
     }
 
     if (!activeExp || !trek) {
+        const REGION_TILES = [
+            { id: 'poland',   name: 'Polska',          emoji: '🇵🇱', desc: '3 szlaki',  gradient: 'from-red-900/50 to-red-700/20',      border: 'border-red-500/30' },
+            { id: 'europe',   name: 'Europa',           emoji: '🇪🇺', desc: '3 szlaki',  gradient: 'from-blue-900/50 to-yellow-800/20',  border: 'border-blue-400/30' },
+            { id: 'americas', name: 'Ameryki',          emoji: '🌎',  desc: '2 szlaki',  gradient: 'from-green-900/50 to-emerald-800/20',border: 'border-green-500/30' },
+            { id: 'asia',     name: 'Azja',             emoji: '🌏',  desc: '2 szlaki',  gradient: 'from-amber-900/50 to-orange-800/20', border: 'border-amber-500/30' },
+            { id: 'cityWalk', name: 'Spacery Miejskie', emoji: '🏙️', desc: '4 miasta',  gradient: 'from-purple-900/50 to-pink-800/20',  border: 'border-purple-400/30' },
+        ];
         return (
             <motion.div
                 initial="hidden" animate="visible"
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                className="w-full min-h-screen px-4 safe-top pb-32 flex flex-col justify-center items-center relative z-10"
+                className="w-full min-h-screen px-4 safe-top pb-32 flex flex-col pt-6 relative z-10"
             >
-                <div className="text-6xl mb-4">🗺️</div>
-                <h2 className="text-xl font-bold text-white mb-2">Nie masz aktywnej wyprawy</h2>
-                <p className="text-gray-400 text-center mb-8 text-sm">Rozpocznij trekking lub wirtualny spacer, aby śledzić swój postęp oparty na codziennych krokach.</p>
+                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 mb-2 drop-shadow-[0_0_10px_rgba(96,165,250,0.5)]">
+                    🗺️ Nawigacja
+                </h1>
+                <p className="text-gray-400 text-sm mb-6">Wybierz region, aby rozpocząć wyprawę opartą na krokach.</p>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                    {REGION_TILES.map(tile => (
+                        <button
+                            key={tile.id}
+                            onClick={() => setShowSelector(true)}
+                            className={`p-5 rounded-2xl border bg-gradient-to-br ${tile.gradient} ${tile.border} flex flex-col items-center justify-center gap-2 hover:scale-[1.02] transition-transform active:scale-95${tile.id === 'cityWalk' ? ' col-span-2' : ''}`}
+                        >
+                            <span className="text-4xl">{tile.emoji}</span>
+                            <span className="font-bold text-gray-100 text-sm">{tile.name}</span>
+                            <span className="text-[10px] text-gray-400">{tile.desc}</span>
+                        </button>
+                    ))}
+                </div>
                 <button
                     onClick={() => setShowSelector(true)}
-                    className="w-full max-w-xs py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-[1.02] transition-transform"
+                    className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-[1.02] transition-transform"
                 >
-                    🗺️ Wybierz Wyprawę
+                    🗺️ Wybierz Dowolną Wyprawę
                 </button>
             </motion.div>
         );
@@ -68,20 +89,20 @@ export function MapTab() {
 
     const getTrekImage = (trekId: string) => {
         switch (trekId) {
-            case 'tatry_glowny': return '/life-os-rpg/assets/expeditions/trail_tatry.png'
-            case 'szlak_beskidzki': return '/life-os-rpg/assets/expeditions/trail_beskidy.png'
-            case 'szlak_nadmorski': return '/life-os-rpg/assets/expeditions/trail_nadmorski.png'
+            case 'tatry_glowny': return '/life-os-rpg/assets/expeditions/trail_tatry.webp'
+            case 'szlak_beskidzki': return '/life-os-rpg/assets/expeditions/trail_beskidy.webp'
+            case 'szlak_nadmorski': return '/life-os-rpg/assets/expeditions/trail_nadmorski.webp'
             case 'camino_santiago': return '/life-os-rpg/assets/expeditions/trail_camino.webp'
             case 'tour_mont_blanc': return '/life-os-rpg/assets/expeditions/trail_mont_blanc.webp'
-            case 'gr20_korsyka': return '/life-os-rpg/assets/expeditions/trail_gr20.png'
+            case 'gr20_korsyka': return '/life-os-rpg/assets/expeditions/trail_gr20.webp'
             case 'appalachian_trail': return '/life-os-rpg/assets/expeditions/trail_appalachian.webp'
-            case 'inca_trail': return '/life-os-rpg/assets/expeditions/trail_inca.png'
-            case 'everest_base_camp': return '/life-os-rpg/assets/expeditions/trail_ebc.png'
-            case 'nakasendo_japonia': return '/life-os-rpg/assets/expeditions/trail_nakasendo.png'
-            case 'city_tokyo': return '/life-os-rpg/assets/expeditions/city_tokyo.png'
-            case 'city_nyc': return '/life-os-rpg/assets/expeditions/city_nyc.png'
-            case 'city_london': return '/life-os-rpg/assets/expeditions/city_london.png'
-            case 'city_rome': return '/life-os-rpg/assets/expeditions/city_rome.png'
+            case 'inca_trail': return '/life-os-rpg/assets/expeditions/trail_inca.webp'
+            case 'everest_base_camp': return '/life-os-rpg/assets/expeditions/trail_ebc.webp'
+            case 'nakasendo_japonia': return '/life-os-rpg/assets/expeditions/trail_nakasendo.webp'
+            case 'city_tokyo': return '/life-os-rpg/assets/expeditions/city_tokyo.webp'
+            case 'city_nyc': return '/life-os-rpg/assets/expeditions/city_nyc.webp'
+            case 'city_london': return '/life-os-rpg/assets/expeditions/city_london.webp'
+            case 'city_rome': return '/life-os-rpg/assets/expeditions/city_rome.webp'
             default: return '/life-os-rpg/assets/expeditions/trail_camino.webp'
         }
     }
@@ -108,11 +129,9 @@ export function MapTab() {
                 </div>
 
                 <div
-                    className="w-full h-[220px] rounded-xl border border-white/10 shadow-lg"
+                    className="w-full h-[220px] rounded-xl border border-white/10 shadow-lg bg-cover bg-center bg-no-repeat"
                     style={{
                         backgroundImage: `url('${getTrekImage(trek.id)}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
                     }}
                 />
 

@@ -19,7 +19,9 @@ export function CalorieEngine() {
   const [showBurnRateDialog, setShowBurnRateDialog] = useState(false)
   const [newBurnRate, setNewBurnRate] = useState('')
 
-  // Prepare chart data - last 6 hours
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true'
+
+  // Prepare chart data - last 6 hours (real mode)
   const chartData = calorieHistory
     .filter(entry => {
       const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000
@@ -30,10 +32,24 @@ export function CalorieEngine() {
       balance: Math.round(entry.balanceAfter),
     }))
 
+  // Mock data for preview mode
+  const MOCK_CHART_DATA = [
+    { time: '08:00', balance: 1800 },
+    { time: '10:30', balance: 2100 },
+    { time: '12:00', balance: 650 },
+    { time: '14:00', balance: 1200 },
+    { time: '16:30', balance: 1800 },
+    { time: '18:00', balance: 2400 },
+  ]
+
+  const displayChartData = isPreview ? MOCK_CHART_DATA : chartData
+  const mockBalance = isPreview ? 350 : currentCalorieBalance
+  const mockBurned = isPreview ? 1850 : (todayStats?.caloriesBurned ?? 0)
+  const mockConsumed = isPreview ? 2200 : (todayStats?.caloriesConsumed ?? 0)
+
   const handleAddMeal = async () => {
     const kcal = parseInt(mealKcal)
     if (isNaN(kcal) || kcal <= 0) return
-
     await logMeal(kcal, mealName || undefined)
     setMealKcal('')
     setMealName('')
@@ -43,17 +59,13 @@ export function CalorieEngine() {
   const handleUpdateBurnRate = async () => {
     const rate = parseInt(newBurnRate)
     if (isNaN(rate) || rate <= 0) return
-
     await setBurnRate(rate)
     setNewBurnRate('')
     setShowBurnRateDialog(false)
   }
 
-  const balanceColor = currentCalorieBalance >= 0
-    ? 'text-cosmic-cyan'
-    : 'text-cosmic-amber'
-
-  const balanceSign = currentCalorieBalance >= 0 ? '+' : ''
+  const balanceColorClass = mockBalance >= 0 ? 'text-cosmic-cyan' : 'text-cosmic-amber'
+  const balanceSign = mockBalance >= 0 ? '+' : ''
 
   return (
     <div className="card p-4 space-y-4">
@@ -89,10 +101,7 @@ export function CalorieEngine() {
             onChange={(e) => setMealKcal(e.target.value)}
             className="w-full bg-cosmic-bg border border-cosmic-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cosmic-purple"
           />
-          <button
-            onClick={handleAddMeal}
-            className="btn-primary w-full"
-          >
+          <button onClick={handleAddMeal} className="btn-primary w-full">
             Dodaj Posiłek
           </button>
         </div>
@@ -100,8 +109,8 @@ export function CalorieEngine() {
 
       {/* Current Balance */}
       <div className="text-center">
-        <div className={`text-5xl font-bold ${balanceColor} text-glow-cyan`}>
-          {balanceSign}{Math.floor(currentCalorieBalance)}
+        <div className={`text-5xl font-bold ${balanceColorClass} text-glow-cyan`}>
+          {balanceSign}{Math.floor(mockBalance)}
         </div>
         <p className="text-sm text-gray-500">kcal bilans</p>
       </div>
@@ -110,15 +119,11 @@ export function CalorieEngine() {
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="text-center">
           <p className="text-gray-500">Spalono dziś</p>
-          <p className="text-xl font-semibold text-red-400">
-            {todayStats?.caloriesBurned.toLocaleString() || 0}
-          </p>
+          <p className="text-xl font-semibold text-red-400">{mockBurned.toLocaleString()}</p>
         </div>
         <div className="text-center">
           <p className="text-gray-500">Spożyto dziś</p>
-          <p className="text-xl font-semibold text-green-400">
-            {todayStats?.caloriesConsumed.toLocaleString() || 0}
-          </p>
+          <p className="text-xl font-semibold text-green-400">{mockConsumed.toLocaleString()}</p>
         </div>
       </div>
 
@@ -129,9 +134,7 @@ export function CalorieEngine() {
       >
         <Flame className="w-4 h-4 text-orange-400" />
         <span className="text-gray-400">Spalanie:</span>
-        <span className="font-semibold text-orange-400">
-          {currentBurnRateKcalPerHour} kcal/h
-        </span>
+        <span className="font-semibold text-orange-400">{currentBurnRateKcalPerHour} kcal/h</span>
         <span className="text-xs text-gray-500">(kliknij aby zmienić)</span>
       </div>
 
@@ -146,29 +149,17 @@ export function CalorieEngine() {
             onChange={(e) => setNewBurnRate(e.target.value)}
             className="w-full bg-cosmic-bg border border-cosmic-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cosmic-purple"
           />
-          <button
-            onClick={handleUpdateBurnRate}
-            className="btn-primary w-full"
-          >
-            Zapisz
-          </button>
+          <button onClick={handleUpdateBurnRate} className="btn-primary w-full">Zapisz</button>
         </div>
       )}
 
       {/* Chart */}
-      {chartData.length > 0 && (
+      {displayChartData.length > 0 && (
         <div className="h-32">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <XAxis
-                dataKey="time"
-                stroke="#4b5563"
-                style={{ fontSize: '10px' }}
-              />
-              <YAxis
-                stroke="#4b5563"
-                style={{ fontSize: '10px' }}
-              />
+            <LineChart data={displayChartData}>
+              <XAxis dataKey="time" stroke="#4b5563" style={{ fontSize: '10px' }} />
+              <YAxis stroke="#4b5563" style={{ fontSize: '10px' }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#141428',
@@ -176,13 +167,7 @@ export function CalorieEngine() {
                   borderRadius: '8px',
                 }}
               />
-              <Line
-                type="monotone"
-                dataKey="balance"
-                stroke="#06b6d4"
-                strokeWidth={2}
-                dot={false}
-              />
+              <Line type="monotone" dataKey="balance" stroke="#06b6d4" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
